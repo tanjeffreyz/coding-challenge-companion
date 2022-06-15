@@ -13,7 +13,7 @@
                     <h1>Coding Challenge Companion</h1>
                 </div>
 
-                <!-- GitHub Authentication -->
+                <!-- GitHub authentication -->
                 <div class="row mt-5 mb-4" id="auth-prompt" hidden>
                     <p id="auth-message">Please authenticate with GitHub to continue</p>
                     <div class="col-1"></div>
@@ -35,22 +35,34 @@
                     </div>
 
                     <!-- Create new repository -->
-                    <div class="row mt-4 mb-4" id="new-repo">
-                        <p>Please create a GitHub repository to get started</p>
+                    <div class="row mt-4" id="new-repo">
                         <div class="col-1"></div>
                         <div class="col">
-                            <button type="button" class="btn btn-primary shadow-none" id="new-repo-button">
-                                <span class="align-middle">
-                                    <img src="resources/repository.svg" width="32px" />
-                                </span>
-                                <span class="align-middle">Create Repository</span>
-                            </button>
+                            <div>
+                                <label class="form-label">Create or add a GitHub repository below to get started</label>
+                                <input type="text" id="new-repo-name" class="form-control"
+                                    width="50%" aria-describedby="helpText"
+                                    pattern="[^\s]+"
+                                    placeholder="Name of new or existing repository">
+                                <div id="helpText" class="form-text"></div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-primary shadow-none" id="new-repo-button">
+                                    <span class="align-middle">
+                                        <img src="resources/repository.svg" width="32px" />
+                                    </span>
+                                    <span class="align-middle">Register Repository</span>
+                                </button>
+                            </div>
                         </div>
                         <div class="col-1"></div>
                     </div>
+
+                    <!-- Summary footer -->
+                    <div class="row mb-4"></div>
                 </div>
 
-                <!-- Footer -->
+                <!-- Main footer -->
                 <div class="row mb-5"></div>
             </div>
             <div class="col"></div>

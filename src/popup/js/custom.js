@@ -60,7 +60,7 @@ function sendRequest({
 
 
 //////////////////////////////
-//      Main Functions      //
+//      Event Listeners     //
 //////////////////////////////
 document.getElementById('auth-button').onclick = () => {
     const url = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=repo,user:email`;
@@ -68,6 +68,25 @@ document.getElementById('auth-button').onclick = () => {
 };
 
 
+const newRepoNameInput = document.getElementById('new-repo-name');
+newRepoNameInput.onkeydown = (e) => {
+    console.log(this);
+     if (!e.key.match(/[A-Za-z0-9]/)) {
+        if (e.key === ' ') {
+            const start = newRepoNameInput.selectionStart;
+            const end = newRepoNameInput.selectionEnd;
+            const text = newRepoNameInput.value;
+            newRepoNameInput.value = text.slice(0, start) + '-' + text.slice(end);
+            newRepoNameInput.selectionStart = newRepoNameInput.selectionEnd = start + 1;
+        }
+        return false;
+    }
+}
+
+
+//////////////////////////////
+//      Main Functions      //
+//////////////////////////////
 function getUserLogin(token) {
     sendRequest({
         type: 'GET',
