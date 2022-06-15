@@ -15,7 +15,13 @@
         "https://api.github.com/*"
     ],
     "action": {
-        "default_popup": "src/popup/popup.html"
+        "default_popup": "src/popup/popup.html",
+        "default_icon": {
+            "16": "resources/icons/thick/icon-16px.png",
+            "32": "resources/icons/thick/icon-32px.png",
+            "48": "resources/icons/thick/icon-48px.png",
+            "128": "resources/icons/thick/icon-128px.png"
+        }
     },
     "content_scripts": [
         {

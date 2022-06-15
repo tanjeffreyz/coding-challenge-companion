@@ -24,6 +24,8 @@ chrome.storage.local.get('access-token', (data) => {
     if (token === null) {
         showPage('auth');
     } else {
+        showPage('summary');
+
         // Retrieve username, check if token is still valid
         const req = new XMLHttpRequest();
         const query = {query: '{ viewer { login } }'};
@@ -31,8 +33,8 @@ chrome.storage.local.get('access-token', (data) => {
             if (req.readyState === 4) {
                 if (req.status === 200) {
                     const res = JSON.parse(req.responseText);
-                    showPage('summary');
-                    document.getElementById('username').textContent = res.data.viewer.login;
+                    const username = res.data.viewer.login;
+                    document.getElementById('summary-message').innerHTML = `Signed in as <b>${username}</b>`;
                 } else {
                     chrome.runtime.sendMessage({type: 'clear-storage'});
                     showPage('auth');
