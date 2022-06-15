@@ -11,6 +11,9 @@
         "storage",
         "unlimitedStorage"
     ],
+    "action": {
+        "default_popup": "src/popup/popup.html"
+    },
     "content_scripts": [
         {
             "matches": ["https://github.com/*"],
