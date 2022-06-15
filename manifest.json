@@ -1,5 +1,5 @@
 {
-    "name": "Coding Challenge Hub",
+    "name": "Coding Challenge Companion",
     "description": "Chrome extension that pushes coding challenge solutions to GitHub upon successful submission",
     "version": "1.0",
     "manifest_version": 3,
@@ -7,7 +7,15 @@
         "service_worker": "src/main.js"
     },
     "permissions": [
+        "tabs",
         "storage",
         "unlimitedStorage"
+    ],
+    "content_scripts": [
+        {
+            "matches": ["https://github.com/*"],
+            "js": ["src/content-scripts/save-github-access-token.js"],
+            "run_at": "document_idle"
+        }
     ]
 }
