@@ -1,5 +1,7 @@
 KEYS = [
     'access-token',
+    'name',
+    'login',
     'email'
 ];
 
