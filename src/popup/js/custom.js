@@ -1,6 +1,6 @@
 const CLIENT_ID = '4c6317c58473acf7128e';
 const PAGES = {
-    'auth': document.getElementById('auth-prompt'),     // Page 0
+    'auth': document.getElementById('auth-prompt'),
     'summary': document.getElementById('summary')
 }
 
@@ -19,16 +19,29 @@ function showPage(key) {
 }
 
 
-chrome.storage.local.get('access-token', (token) => {
+chrome.storage.local.get('access-token', (data) => {
+    const token = data['access-token'];
     if (token === null) {
         showPage('auth');
-    }
-
-    const req = new XMLHttpRequest();
-    
-    
-    
-     {
-        showPage('summary');
+    } else {
+        // Retrieve username, check if token is still valid
+        const req = new XMLHttpRequest();
+        const query = {query: '{ viewer { login } }'};
+        req.addEventListener('readystatechange', () => {
+            if (req.readyState === 4) {
+                if (req.status === 200) {
+                    const res = JSON.parse(req.responseText);
+                    showPage('summary');
+                    document.getElementById('username').textContent = res.data.viewer.login;
+                } else {
+                    chrome.storage.local.set({'access-token': null}, () => {});
+                    showPage('auth');
+                    document.getElementById('auth-message').textContent = 'Access token no longer valid, please authenticate again'
+                }
+            }
+        });
+        req.open('POST', 'https://api.github.com/graphql', true);
+        req.setRequestHeader('Authorization', `bearer ${token}`);
+        req.send(JSON.stringify(query));
     }
 })

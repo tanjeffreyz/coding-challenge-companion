@@ -16,16 +16,13 @@ function saveAccessToken() {
     body.append('client_id', CLIENT_ID);
     body.append('client_secret', CLIENT_SECRET);
     body.append('code', extractCode(window.location.href));
-    console.log(extractCode(window.location.href));
 
     const req = new XMLHttpRequest();
     req.addEventListener('readystatechange', () => {
         if (req.readyState === 4 && req.status === 200) {
-            console.log(req.responseText);
             const matches = req.responseText.match(/access_token=(\w+)/);
             if (matches !== null) {
                 chrome.storage.local.set({'access-token': matches[1]}, () => {});
-                console.log(matches[1]);
             }
         }
     });

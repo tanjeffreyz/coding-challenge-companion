@@ -11,6 +11,9 @@
         "storage",
         "unlimitedStorage"
     ],
+    "host_permissions": [
+        "https://api.github.com/*"
+    ],
     "action": {
         "default_popup": "src/popup/popup.html"
     },
