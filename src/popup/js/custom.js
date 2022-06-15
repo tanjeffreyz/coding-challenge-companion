@@ -43,6 +43,12 @@ function showPage(key) {
 }
 
 
+const failReauth = (req) => {
+    showPage('re-auth');
+    chrome.runtime.sendMessage({type: 'clear-storage'});
+}
+
+
 function sendRequest({
     type,
     url,
@@ -52,11 +58,15 @@ function sendRequest({
     fail,
     validStates
 }) {
-    const allowed = (typeof validStates === 'undefined' ? new Set([200]) : new Set(validStates));
+    validStates = (typeof validStates === 'undefined' ? new Set([200]) : new Set(validStates));
+    fail = (typeof fail === 'undefined' ? (req) => {} : fail);
+
     const req = new XMLHttpRequest();
     req.addEventListener('readystatechange', () => {
         if (req.readyState === 4) {
-            if (allowed.has(req.status)) {
+            if (req.status === 401) {
+                failReauth(req);
+            } else if (validStates.has(req.status)) {
                 pass(req);
             } else {
                 fail(req);
@@ -116,10 +126,7 @@ document.getElementById('register-repo-button').onclick = () => {
                         main();
                     });
                 },
-                fail: (req) => {
-
-                },
-                validStates: [200, 201]
+                validStates: [200, 201, 422]        // 422 means repository already exists
             });
         });
     }
@@ -129,12 +136,6 @@ document.getElementById('register-repo-button').onclick = () => {
 //////////////////////////////
 //      Main Functions      //
 //////////////////////////////
-const failReauth = (req) => {
-    showPage('re-auth');
-    chrome.runtime.sendMessage({type: 'clear-storage'});
-}
-
-
 function getUserLogin(token) {
     sendRequest({
         type: 'GET',
@@ -143,8 +144,9 @@ function getUserLogin(token) {
         pass: (req) => {
             const res = JSON.parse(req.responseText);
             chrome.storage.local.get('repository', (data) => {
+                const headerMessage = document.getElementById('header-message');
                 if (data !== null && data.repository !== null) {
-                    document.getElementById('header-message').innerHTML = `
+                    headerMessage.innerHTML = `
                         <span class="align-middle">
                             <img src="resources/repository.svg" width="24px" />
                         </span>
@@ -153,13 +155,11 @@ function getUserLogin(token) {
                         </span>
                     `;
                 } else {
-                    document.getElementById('header-message').innerHTML = `Signed in as <b>${res.login}</b>`;
+                    headerMessage.innerHTML = `<p>Signed in as <b>${res.login}</b></p>`;
                 }
             });
-            chrome.storage.local.set({'login': res.login}, () => {});
-            chrome.storage.local.set({'name': res.name}, () => {});
-        },
-        fail: failReauth
+            chrome.storage.local.set({'login': res.login, 'name': res.name}, () => {});
+        }
     });
 }
 
@@ -177,15 +177,14 @@ function getUserEmail(token) {
                     chrome.storage.local.set({'email': email.email}, () => {});
                 }
             }
-        },
-        fail: failReauth
+        }
     });
 }
 
 
 function main() {
     chrome.storage.local.get(
-        ['access-token', 'login', 'repository'],
+        ['access-token', 'repository'],
         (data) => {
             const token = data['access-token'];
             if (!data || token === null) {
