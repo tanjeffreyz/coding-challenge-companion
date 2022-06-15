@@ -4,6 +4,7 @@ KEYS = [
 
 
 chrome.runtime.onMessage.addListener((message) => {
+    let response = null;
     switch(message.type) {
         case 'clear-storage':
             for (let i = 0; i < KEYS.length; i++) {
@@ -13,4 +14,5 @@ chrome.runtime.onMessage.addListener((message) => {
             }
             break;
     }
+    message.reponse = response;
 });
