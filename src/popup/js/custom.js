@@ -2,14 +2,22 @@ const CLIENT_ID = '4c6317c58473acf7128e';
 const PAGES = {
     'auth': [
         document.getElementById('auth-prompt'), 
-        () => {}
+        () => {
+            document.getElementById('header-message').textContent = ' ';
+        }
     ],
 
     're-auth': [
         document.getElementById('auth-prompt'), 
         () => {
+            document.getElementById('header-message').textContent = ' ';
             document.getElementById('auth-message').textContent = 'Access token no longer valid, please authenticate again'
         }
+    ],
+
+    'register-repo': [
+        document.getElementById('register-repo'),
+        () => {}
     ],
 
     'summary': [
@@ -57,7 +65,7 @@ function sendRequest({
     });
     req.open(type, url, true);
     req.setRequestHeader('Authorization', `token ${token}`);
-    typeof body === 'undefined' ? req.send() : req.send(body);
+    typeof body === 'undefined' ? req.send() : req.send(JSON.stringify(body));
 }
 
 
@@ -72,8 +80,7 @@ document.getElementById('auth-button').onclick = () => {
 
 const registerRepoInput = document.getElementById('register-repo-name');
 registerRepoInput.onkeydown = (e) => {
-    console.log(this);
-     if (!e.key.match(/[A-Za-z0-9]/)) {
+    if (!e.key.match(/[A-Za-z0-9\-]/)) {
         if (e.key === ' ') {
             const start = registerRepoInput.selectionStart;
             const end = registerRepoInput.selectionEnd;
@@ -87,13 +94,47 @@ registerRepoInput.onkeydown = (e) => {
 
 
 document.getElementById('register-repo-button').onclick = () => {
+    const repoName = registerRepoInput.value.trim('-');
+    if (repoName === '') {
 
+    } else {
+        chrome.storage.local.get('access-token', (data) => {
+            const token = data['access-token'];
+            sendRequest({
+                type: 'POST',
+                url: 'https://api.github.com/user/repos',
+                token,
+                body: {
+                    name: repoName,
+                    private: true,
+                    auto_init: true,
+                    description: 'A challenge a day keeps the brain cells awake! 😉'
+                },
+                pass: (req) => {
+                    chrome.storage.local.set({'repository': repoName}, () => {
+                        console.log('Success');
+                        main();
+                    });
+                },
+                fail: (req) => {
+
+                },
+                validStates: [200, 201]
+            });
+        });
+    }
 };
 
 
 //////////////////////////////
 //      Main Functions      //
 //////////////////////////////
+const failReauth = (req) => {
+    showPage('re-auth');
+    chrome.runtime.sendMessage({type: 'clear-storage'});
+}
+
+
 function getUserLogin(token) {
     sendRequest({
         type: 'GET',
@@ -101,14 +142,24 @@ function getUserLogin(token) {
         token,
         pass: (req) => {
             const res = JSON.parse(req.responseText);
-            document.getElementById('summary-message').innerHTML = `Signed in as <b>${res.login}</b>`;
+            chrome.storage.local.get('repository', (data) => {
+                if (data !== null && data.repository !== null) {
+                    document.getElementById('header-message').innerHTML = `
+                        <span class="align-middle">
+                            <img src="resources/repository.svg" width="24px" />
+                        </span>
+                        <span class="align-middle">
+                            <b>${res.login}/${data.repository}</b>
+                        </span>
+                    `;
+                } else {
+                    document.getElementById('header-message').innerHTML = `Signed in as <b>${res.login}</b>`;
+                }
+            });
             chrome.storage.local.set({'login': res.login}, () => {});
             chrome.storage.local.set({'name': res.name}, () => {});
         },
-        fail: (req) => {
-            showPage('re-auth');
-            chrome.runtime.sendMessage({type: 'clear-storage'});
-        }
+        fail: failReauth
     });
 }
 
@@ -127,21 +178,30 @@ function getUserEmail(token) {
                 }
             }
         },
-        fail: (req) => {
-            showPage('re-auth');
-            chrome.runtime.sendMessage({type: 'clear-storage'});
-        }
+        fail: failReauth
     });
 }
 
 
-chrome.storage.local.get('access-token', (data) => {
-    const token = data['access-token'];
-    if (token === null) {
-        showPage('auth');
-    } else {
-        showPage('summary');
-        getUserLogin(token);     // Retrieve username and name
-        getUserEmail(token);     // Retrieve user's primary email to generate commits with
-    }
-});
+function main() {
+    chrome.storage.local.get(
+        ['access-token', 'login', 'repository'],
+        (data) => {
+            const token = data['access-token'];
+            if (!data || token === null) {
+                showPage('auth');
+            } else {
+                if (data.repository === null) {
+                    showPage('register-repo');
+                } else {
+                    showPage('summary');
+                }
+                getUserLogin(token);     // Retrieve username and name
+                getUserEmail(token);     // Retrieve user's primary email to generate commits with
+            }
+        }
+    );
+}
+
+
+main();

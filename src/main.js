@@ -2,7 +2,8 @@ KEYS = [
     'access-token',
     'name',
     'login',
-    'email'
+    'email',
+    'repository'
 ];
 
 
