@@ -2,7 +2,7 @@ const CLIENT_ID = '4c6317c58473acf7128e';
 const PAGES = {
     'auth': document.getElementById('auth-prompt'),
     'summary': document.getElementById('summary')
-}
+};
 
 
 document.getElementById('auth-button').onclick = () => {
@@ -34,7 +34,7 @@ chrome.storage.local.get('access-token', (data) => {
                     showPage('summary');
                     document.getElementById('username').textContent = res.data.viewer.login;
                 } else {
-                    chrome.storage.local.set({'access-token': null}, () => {});
+                    chrome.runtime.sendMessage({type: 'clear-storage'});
                     showPage('auth');
                     document.getElementById('auth-message').textContent = 'Access token no longer valid, please authenticate again'
                 }
@@ -44,4 +44,4 @@ chrome.storage.local.get('access-token', (data) => {
         req.setRequestHeader('Authorization', `bearer ${token}`);
         req.send(JSON.stringify(query));
     }
-})
+});
