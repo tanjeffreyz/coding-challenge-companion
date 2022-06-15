@@ -8,13 +8,13 @@
     <body>
         <div class="container-fluid">
             <div class="col"></div>
-            <div class="col">
-                <div class="row mt-3" align="center">
+            <div class="col" align="center">
+                <div class="row mt-3">
                     <h1>Coding Challenge Companion</h1>
                 </div>
 
                 <!-- GitHub Authentication -->
-                <div class="row mt-5 mb-5 pb-4" align="center" id="auth-prompt" hidden>
+                <div class="row mt-5 mb-4" id="auth-prompt" hidden>
                     <p id="auth-message">Please authenticate with GitHub to continue</p>
                     <div class="col-1"></div>
                     <div class="col">
@@ -29,9 +29,29 @@
                 </div>
 
                 <!-- Summary -->
-                <div class="row mt-1 mb-3" align="center" id="summary" hidden>
-                    <p id="summary-message">Retrieving data from GitHub...</p>
+                <div id="summary" hidden>
+                    <div class="row mt-1">
+                        <p id="summary-message">Retrieving data from GitHub...</p>
+                    </div>
+
+                    <!-- Create new repository -->
+                    <div class="row mt-4 mb-4" id="new-repo">
+                        <p>Please create a GitHub repository to get started</p>
+                        <div class="col-1"></div>
+                        <div class="col">
+                            <button type="button" class="btn btn-primary shadow-none" id="new-repo-button">
+                                <span class="align-middle">
+                                    <img src="resources/repository.svg" width="32px" />
+                                </span>
+                                <span class="align-middle">Create Repository</span>
+                            </button>
+                        </div>
+                        <div class="col-1"></div>
+                    </div>
                 </div>
+
+                <!-- Footer -->
+                <div class="row mb-5"></div>
             </div>
             <div class="col"></div>
         </div>

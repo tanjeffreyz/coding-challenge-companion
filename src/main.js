@@ -17,6 +17,7 @@ chrome.runtime.onMessage.addListener((message) => {
             }
             break;
         case 'upload-file':
+            const name = message.name;
             // chrome.storage.
             break;
     }
