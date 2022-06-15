@@ -42,11 +42,13 @@ function sendRequest({
     token,
     pass,
     fail,
+    validStates
 }) {
+    const allowed = (typeof validStates === 'undefined' ? new Set([200]) : new Set(validStates));
     const req = new XMLHttpRequest();
     req.addEventListener('readystatechange', () => {
         if (req.readyState === 4) {
-            if (req.status === 200) {
+            if (allowed.has(req.status)) {
                 pass(req);
             } else {
                 fail(req);
@@ -85,7 +87,7 @@ registerRepoInput.onkeydown = (e) => {
 
 
 document.getElementById('register-repo-button').onclick = () => {
-    
+
 };
 
 
