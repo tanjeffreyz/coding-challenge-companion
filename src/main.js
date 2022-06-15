@@ -14,6 +14,9 @@ chrome.runtime.onMessage.addListener((message) => {
                 chrome.storage.local.set(dict, () => {});
             }
             break;
+        case 'upload-file':
+            // chrome.storage.
+            break;
     }
     message.reponse = response;
 });

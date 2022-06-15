@@ -48,26 +48,26 @@ chrome.storage.local.get('access-token', (data) => {
     } else {
         showPage('summary');
 
-        // Retrieve username, check if token is still valid
-        const usernameReq = new XMLHttpRequest();
-        const query = {query: '{ viewer { login } }'};
-        usernameReq.addEventListener('readystatechange', () => {
-            if (usernameReq.readyState === 4) {
-                if (usernameReq.status === 200) {
-                    const res = JSON.parse(usernameReq.responseText);
-                    const username = res.data.viewer.login;
-                    document.getElementById('summary-message').innerHTML = `Signed in as <b>${username}</b>`;
+        // Retrieve username and name
+        const userReq = new XMLHttpRequest();
+        userReq.addEventListener('readystatechange', () => {
+            if (userReq.readyState === 4) {
+                if (userReq.status === 200) {
+                    const res = JSON.parse(userReq.responseText);
+                    document.getElementById('summary-message').innerHTML = `Signed in as <b>${res.login}</b>`;
+                    chrome.storage.local.set({'login': res.login}, () => {});
+                    chrome.storage.local.set({'name': res.name}, () => {});
                 } else {
                     showPage('re-auth');
                     chrome.runtime.sendMessage({type: 'clear-storage'});
                 }
             }
         });
-        usernameReq.open('POST', 'https://api.github.com/graphql', true);
-        usernameReq.setRequestHeader('Authorization', `bearer ${token}`);
-        usernameReq.send(JSON.stringify(query));
+        userReq.open('GET', 'https://api.github.com/user', true);
+        userReq.setRequestHeader('Authorization', `token ${token}`);
+        userReq.send();
 
-        // Retrieve user's emails to generate commits with
+        // Retrieve user's primary email to generate commits with
         const emailReq = new XMLHttpRequest();
         emailReq.addEventListener('readystatechange', () => {
             if (emailReq.readyState === 4) {
