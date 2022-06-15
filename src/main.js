@@ -1,5 +1,6 @@
 KEYS = [
-    'access-token'
+    'access-token',
+    'email'
 ];
 
 
