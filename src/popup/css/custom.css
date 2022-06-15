@@ -1,0 +1,11 @@
+* {
+    font-family: 'Verdana', sans-serif;
+}
+
+body {
+    width: 500px;
+}
+
+.invert-color {
+    filter: invert(1);
+}

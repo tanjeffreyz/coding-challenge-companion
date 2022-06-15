@@ -20,7 +20,7 @@ function saveAccessToken() {
 
     const req = new XMLHttpRequest();
     req.addEventListener('readystatechange', () => {
-        if (req.readyState == 4 && req.status == 200) {
+        if (req.readyState === 4 && req.status === 200) {
             console.log(req.responseText);
             const matches = req.responseText.match(/access_token=(\w+)/);
             if (matches !== null) {
