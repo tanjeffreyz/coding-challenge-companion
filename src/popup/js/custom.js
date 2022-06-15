@@ -68,20 +68,25 @@ document.getElementById('auth-button').onclick = () => {
 };
 
 
-const newRepoNameInput = document.getElementById('new-repo-name');
-newRepoNameInput.onkeydown = (e) => {
+const registerRepoInput = document.getElementById('register-repo-name');
+registerRepoInput.onkeydown = (e) => {
     console.log(this);
      if (!e.key.match(/[A-Za-z0-9]/)) {
         if (e.key === ' ') {
-            const start = newRepoNameInput.selectionStart;
-            const end = newRepoNameInput.selectionEnd;
-            const text = newRepoNameInput.value;
-            newRepoNameInput.value = text.slice(0, start) + '-' + text.slice(end);
-            newRepoNameInput.selectionStart = newRepoNameInput.selectionEnd = start + 1;
+            const start = registerRepoInput.selectionStart;
+            const end = registerRepoInput.selectionEnd;
+            const text = registerRepoInput.value;
+            registerRepoInput.value = text.slice(0, start) + '-' + text.slice(end);
+            registerRepoInput.selectionStart = registerRepoInput.selectionEnd = start + 1;
         }
         return false;
     }
-}
+};
+
+
+document.getElementById('register-repo-button').onclick = () => {
+    
+};
 
 
 //////////////////////////////
