@@ -26,8 +26,11 @@
     "content_scripts": [
         {
             "matches": ["https://github.com/*"],
-            "js": ["src/content-scripts/save-github-access-token.js"],
-            "run_at": "document_idle"
+            "js": ["src/content-scripts/save-github-access-token.js"]
+        },
+        {
+            "matches": ["https://leetcode.com/*"],
+            "js": ["src/content-scripts/leetcode.js"]
         }
     ]
 }
