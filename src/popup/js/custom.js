@@ -147,12 +147,14 @@ function getUserLogin(token) {
                 const headerMessage = document.getElementById('header-message');
                 if (data !== null && data.repository !== null) {
                     headerMessage.innerHTML = `
-                        <span class="align-middle">
-                            <img src="resources/repository.svg" width="24px" />
-                        </span>
-                        <span class="align-middle">
-                            <b>${res.login}/${data.repository}</b>
-                        </span>
+                        <a class="text-decoration-none" target="_blank" href="https://github.com/${res.login}/${data.repository}">
+                            <span class="align-middle">
+                                <img src="resources/repository.svg" width="24px" />
+                            </span>
+                            <span class="align-middle">
+                                <b>${res.login}/${data.repository}</b>
+                            </span>
+                        </a>
                     `;
                 } else {
                     headerMessage.innerHTML = `<p>Signed in as <b>${res.login}</b></p>`;
