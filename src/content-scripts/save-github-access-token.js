@@ -22,7 +22,7 @@ function saveAccessToken() {
         if (req.readyState === 4 && req.status === 200) {
             const matches = req.responseText.match(/access_token=(\w+)/);
             if (matches !== null) {
-                chrome.storage.local.set({'access-token': matches[1]}, () => {});
+                chrome.storage.local.set({'accessToken': matches[1]}, () => {});
             }
         }
     });

@@ -108,12 +108,11 @@ document.getElementById('register-repo-button').onclick = () => {
     if (repoName === '') {
 
     } else {
-        chrome.storage.local.get('access-token', (data) => {
-            const token = data['access-token'];
+        chrome.storage.local.get('accessToken', (data) => {
             sendRequest({
                 type: 'POST',
                 url: 'https://api.github.com/user/repos',
-                token,
+                token: data.accessToken,
                 body: {
                     name: repoName,
                     private: true,
@@ -186,9 +185,9 @@ function getUserEmail(token) {
 
 function main() {
     chrome.storage.local.get(
-        ['access-token', 'repository'],
+        ['accessToken', 'repository'],
         (data) => {
-            const token = data['access-token'];
+            const token = data.accessToken;
             if (!data || token === null) {
                 showPage('auth');
             } else {

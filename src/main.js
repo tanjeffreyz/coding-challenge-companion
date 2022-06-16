@@ -1,5 +1,5 @@
 KEYS = [
-    'access-token',
+    'accessToken',
     'name',
     'login',
     'email',
@@ -21,6 +21,36 @@ function noNullMembers(obj) {
         if (obj[member] === null) return true;
     }
     return false;
+}
+
+
+function sendRequest({
+    type,
+    url,
+    body,
+    token,
+    pass,
+    fail,
+    validStates
+}) {
+    validStates = (typeof validStates === 'undefined' ? new Set([200]) : new Set(validStates));
+    fail = (typeof fail === 'undefined' ? (req) => {} : fail);
+
+    const req = new XMLHttpRequest();
+    req.addEventListener('readystatechange', () => {
+        if (req.readyState === 4) {
+            if (req.status === 401) {
+                failReauth(req);
+            } else if (validStates.has(req.status)) {
+                pass(req);
+            } else {
+                fail(req);
+            }
+        }
+    });
+    req.open(type, url, true);
+    req.setRequestHeader('Authorization', `token ${token}`);
+    typeof body === 'undefined' ? req.send() : req.send(JSON.stringify(body));
 }
 
 
