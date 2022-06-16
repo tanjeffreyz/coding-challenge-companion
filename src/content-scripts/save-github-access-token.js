@@ -12,22 +12,25 @@ function extractCode(url) {
 
 
 function saveAccessToken() {
-    const body = new FormData();
+    const url = 'https://github.com/login/oauth/access_token';
+    const body = new URLSearchParams();
     body.append('client_id', CLIENT_ID);
     body.append('client_secret', CLIENT_SECRET);
     body.append('code', extractCode(window.location.href));
 
-    const req = new XMLHttpRequest();
-    req.addEventListener('readystatechange', () => {
-        if (req.readyState === 4 && req.status === 200) {
-            const matches = req.responseText.match(/access_token=(\w+)/);
-            if (matches !== null) {
+    fetch(url, {
+        method: 'POST',
+        body
+    })
+    .then((res) => {
+        res.text().then((text) => {
+            const matches = text.match(/access_token=(\w+)/);
+            if (matches !== null && matches.length === 2) {
                 chrome.storage.local.set({'accessToken': matches[1]}, () => {});
             }
-        }
-    });
-    req.open('POST', 'https://github.com/login/oauth/access_token', true);
-    req.send(body);
+        });
+    })
+    .catch((error) => {});
 }
 
 
