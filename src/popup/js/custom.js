@@ -210,9 +210,9 @@ function main() {
 main();
 
 
-chrome.runtime.sendMessage({
-    type: 'commit-file',
-    path: 'leetcode/test.py',
-    commitMessage: 'testing commit',
-    content: '#lel\n'
-})
+// chrome.runtime.sendMessage({
+//     type: 'commit-file',
+//     path: 'leetcode/test.py',
+//     commitMessage: 'testing commit',
+//     content: '#lel3\n'
+// })

@@ -91,20 +91,34 @@ chrome.runtime.onMessage.addListener((message) => {
                             console.error(`Failed to commit because no repository has been registered`);
                         } else {
                             const url = `https://api.github.com/repos/${data.login}/${data.repository}/contents/${message.path}`;
-                            const body = {
-                                message: message.commitMessage,
-                                content: btoa(message.content)          // Base-64 encoding
-                            };
-                            sendRequest({
-                                method: 'PUT',
+                            sendRequest({       // Check if file already exists
+                                method: 'GET',
                                 url,
-                                body,
                                 token: data.accessToken,
+                                validProperties: ['Not Found'],
                                 pass: (res) => {
-                                    console.log(`Successfully committed to '${url}'`);
-                                },
-                                fail: (res) => {
-                                    console.error(`Failed to commit to '${url}': ${res.message}`);
+                                    const reg = /\s+/g;
+                                    const oldContent = res.content;     
+                                    const newContent = btoa(message.content);       // Base-64 encoding
+                                    if (newContent.replace(reg, '') !== oldContent.replace(reg, '')) {
+                                        const body = {
+                                            message: message.commitMessage,
+                                            content: newContent,
+                                            sha: res.sha
+                                        };
+                                        sendRequest({        // Upload or update file
+                                            method: 'PUT',
+                                            url,
+                                            body,
+                                            token: data.accessToken,
+                                            pass: (res) => {
+                                                console.log(`Successfully committed to '${url}'`);
+                                            },
+                                            fail: (res) => {
+                                                console.error(`Failed to commit to '${url}': ${res.message}`);
+                                            }
+                                        });
+                                    }
                                 }
                             });
                         }
