@@ -18,9 +18,9 @@ function clearStorage() {
 
 function noNullMembers(obj) {
     for (let member in target) {
-        if (obj[member] === null) return true;
+        if (obj[member] === null) return false;
     }
-    return false;
+    return true;
 }
 
 
@@ -40,7 +40,7 @@ function sendRequest({
     req.addEventListener('readystatechange', () => {
         if (req.readyState === 4) {
             if (req.status === 401) {
-                failReauth(req);
+                clearStorage();
             } else if (validStates.has(req.status)) {
                 pass(req);
             } else {
@@ -55,7 +55,6 @@ function sendRequest({
 
 
 chrome.runtime.onMessage.addListener((message) => {
-    let response = null;
     switch(message.type) {
         case 'clear-storage':
             clearStorage();
@@ -74,5 +73,4 @@ chrome.runtime.onMessage.addListener((message) => {
             );
             break;
     }
-    message.reponse = response;
 });
