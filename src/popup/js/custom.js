@@ -11,7 +11,7 @@ const PAGES = {
         document.getElementById('auth-prompt'), 
         () => {
             document.getElementById('header-message').textContent = ' ';
-            document.getElementById('auth-message').textContent = 'Access token no longer valid, please authenticate again'
+            document.getElementById('auth-message').textContent = 'Invalid access token, please authenticate again'
         }
     ],
 
@@ -187,3 +187,11 @@ function main() {
 
 
 main();
+
+
+chrome.runtime.sendMessage({
+    type: 'commit-file',
+    path: 'leetcode/test.py',
+    commitMessage: 'testing commit',
+    content: '#lel\n'
+})

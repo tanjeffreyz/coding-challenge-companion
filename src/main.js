@@ -15,7 +15,7 @@ function clearStorage() {
 
 
 function noNullMembers(obj) {
-    for (let member in target) {
+    for (let member in obj) {
         if (obj[member] === null) return false;
     }
     return true;
@@ -23,33 +23,37 @@ function noNullMembers(obj) {
 
 
 function sendRequest({
-    type,
+    method,
     url,
     body,
     token,
-    pass,
-    fail,
-    validStates
+    pass = ((data) => {}),
+    fail = ((data) => {})
 }) {
-    validStates = (typeof validStates === 'undefined' ? new Set([200]) : new Set(validStates));
-    pass = (typeof pass === 'undefined' ? (req) => {} : pass);
-    fail = (typeof fail === 'undefined' ? (req) => {} : fail);
+    const config = {
+        method,
+        headers: {
+            'Authorization': `token ${token}`
+        },
+        body: (typeof body === 'undefined' ? null : JSON.stringify(body))
+    };
 
-    const req = new XMLHttpRequest();
-    req.addEventListener('readystatechange', () => {
-        if (req.readyState === 4) {
-            if (req.status === 401) {
+    fetch(url, config)
+    .then((res) => res.json())
+    .then((data) => {
+        console.log(data);
+        if (data.hasOwnProperty('message') && data.hasOwnProperty('documentation_url')) {
+            if (data.message === 'Requires authentication') {
                 clearStorage();
-            } else if (validStates.has(req.status)) {
-                pass(req);
-            } else {
-                fail(req);
             }
+            fail(data);
+        } else {
+            pass(data);
         }
+    })
+    .catch((error) => {
+        console.error(`Error sending request to '${url}':`, error);
     });
-    req.open(type, url, true);
-    req.setRequestHeader('Authorization', `token ${token}`);
-    typeof body === 'undefined' ? req.send() : req.send(JSON.stringify(body));
 }
 
 
@@ -62,27 +66,30 @@ chrome.runtime.onMessage.addListener((message) => {
             chrome.storage.local.get(
                 ['accessToken', 'login', 'repository'],
                 (data) => {
-                    if (data && noNullMembers(data)) {
-                        const url = `https://api.github.com/repos/${data.login}/${data.repository}/contents/${message.path}`;
-                        const body = {
-                            message: message.commitMessage,
-                            content: message.content
+                    if (data) {
+                        if (data.accessToken === null) {
+                            clearStorage();
+                        } else if (data.repository === null) {
+                            console.error(`Failed to commit because no repository has been registered`);
+                        } else {
+                            const url = `https://api.github.com/repos/${data.login}/${data.repository}/contents/${message.path}`;
+                            const body = {
+                                message: message.commitMessage,
+                                content: btoa(message.content)          // Base-64 encoding
+                            };
+                            sendRequest({
+                                method: 'PUT',
+                                url,
+                                body,
+                                token: data.accessToken,
+                                pass: (data) => {
+                                    console.log(`Successfully committed to '${url}'`);
+                                },
+                                fail: (data) => {
+                                    console.error(`Failed to commit to '${url}': ${data.message}`);
+                                }
+                            });
                         }
-                        sendRequest({
-                            type: 'PUT',
-                            url,
-                            body,
-                            token: data.accessToken,
-                            validStates: [200, 201],
-                            pass: (req) => {
-                                console.log(`Successfully committed to '${url}'`);
-                            },
-                            fail: (req) => {
-                                console.error(`Status code ${req.status}, failed to commit to '${url}'`);
-                            }
-                        })
-                    } else {
-                        clearStorage();
                     }
                 }
             );
