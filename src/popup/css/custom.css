@@ -9,3 +9,11 @@ body {
 .invert-color {
     filter: invert(1);
 }
+
+a img {
+    transition: transform 0.2s ease-out;
+}
+
+a:hover img {
+    transform: scale(1.1);
+}
