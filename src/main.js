@@ -32,6 +32,7 @@ function sendRequest({
     validStates
 }) {
     validStates = (typeof validStates === 'undefined' ? new Set([200]) : new Set(validStates));
+    pass = (typeof pass === 'undefined' ? (req) => {} : pass);
     fail = (typeof fail === 'undefined' ? (req) => {} : fail);
 
     const req = new XMLHttpRequest();
@@ -59,13 +60,27 @@ chrome.runtime.onMessage.addListener((message) => {
             break;
         case 'commit-file':
             chrome.storage.local.get(
-                ['login', 'repository'],
+                ['accessToken', 'login', 'repository'],
                 (data) => {
                     if (data && noNullMembers(data)) {
-                        const url = `https://api.github.com/repos/${data.login}/${data.repository}/${message.path}`;
+                        const url = `https://api.github.com/repos/${data.login}/${data.repository}/contents/${message.path}`;
                         const body = {
-
+                            message: message.commitMessage,
+                            content: message.content
                         }
+                        sendRequest({
+                            type: 'PUT',
+                            url,
+                            body,
+                            token: data.accessToken,
+                            validStates: [200, 201],
+                            pass: (req) => {
+                                console.log(`Successfully committed to '${url}'`);
+                            },
+                            fail: (req) => {
+                                console.error(`Status code ${req.status}, failed to commit to '${url}'`);
+                            }
+                        })
                     } else {
                         clearStorage();
                     }

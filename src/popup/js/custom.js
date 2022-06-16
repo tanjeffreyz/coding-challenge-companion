@@ -59,6 +59,7 @@ function sendRequest({
     validStates
 }) {
     validStates = (typeof validStates === 'undefined' ? new Set([200]) : new Set(validStates));
+    pass = (typeof pass === 'undefined' ? (req) => {} : pass);
     fail = (typeof fail === 'undefined' ? (req) => {} : fail);
 
     const req = new XMLHttpRequest();
@@ -165,24 +166,6 @@ function getUserLogin(token) {
 }
 
 
-// function getUserEmail(token) {
-//     sendRequest({
-//         type: 'GET',
-//         url: 'https://api.github.com/user/emails',
-//         token,
-//         pass: (req) => {
-//             const res = JSON.parse(req.responseText);
-//             for (let i = 0; i < res.length; i++) {
-//                 const email = res[i];
-//                 if (email.primary && email.verified) {
-//                     chrome.storage.local.set({'email': email.email}, () => {});
-//                 }
-//             }
-//         }
-//     });
-// }
-
-
 function main() {
     chrome.storage.local.get(
         ['accessToken', 'repository'],
@@ -197,7 +180,6 @@ function main() {
                     showPage('summary');
                 }
                 getUserLogin(token);     // Retrieve username and name
-                // getUserEmail(token);     // Retrieve user's primary email to generate commits with
             }
         }
     );
