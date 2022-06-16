@@ -83,7 +83,7 @@ function sendRequest({
 //      Event Listeners     //
 //////////////////////////////
 document.getElementById('auth-button').onclick = () => {
-    const url = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=repo,user:email`;
+    const url = `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID}&scope=repo`;
     chrome.tabs.create({url, active: true}, () => {});
 };
 
@@ -159,28 +159,28 @@ function getUserLogin(token) {
                     headerMessage.innerHTML = `<p>Signed in as <b>${res.login}</b></p>`;
                 }
             });
-            chrome.storage.local.set({'login': res.login, 'name': res.name}, () => {});
+            chrome.storage.local.set({'login': res.login}, () => {});
         }
     });
 }
 
 
-function getUserEmail(token) {
-    sendRequest({
-        type: 'GET',
-        url: 'https://api.github.com/user/emails',
-        token,
-        pass: (req) => {
-            const res = JSON.parse(req.responseText);
-            for (let i = 0; i < res.length; i++) {
-                const email = res[i];
-                if (email.primary && email.verified) {
-                    chrome.storage.local.set({'email': email.email}, () => {});
-                }
-            }
-        }
-    });
-}
+// function getUserEmail(token) {
+//     sendRequest({
+//         type: 'GET',
+//         url: 'https://api.github.com/user/emails',
+//         token,
+//         pass: (req) => {
+//             const res = JSON.parse(req.responseText);
+//             for (let i = 0; i < res.length; i++) {
+//                 const email = res[i];
+//                 if (email.primary && email.verified) {
+//                     chrome.storage.local.set({'email': email.email}, () => {});
+//                 }
+//             }
+//         }
+//     });
+// }
 
 
 function main() {
@@ -197,7 +197,7 @@ function main() {
                     showPage('summary');
                 }
                 getUserLogin(token);     // Retrieve username and name
-                getUserEmail(token);     // Retrieve user's primary email to generate commits with
+                // getUserEmail(token);     // Retrieve user's primary email to generate commits with
             }
         }
     );

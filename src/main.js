@@ -1,8 +1,6 @@
 KEYS = [
     'accessToken',
-    'name',
     'login',
-    'email',
     'repository'
 ];
 
@@ -61,11 +59,13 @@ chrome.runtime.onMessage.addListener((message) => {
             break;
         case 'commit-file':
             chrome.storage.local.get(
-                ['name', 'login', 'email', 'repository'],
+                ['login', 'repository'],
                 (data) => {
                     if (data && noNullMembers(data)) {
                         const url = `https://api.github.com/repos/${data.login}/${data.repository}/${message.path}`;
-                        
+                        const body = {
+
+                        }
                     } else {
                         clearStorage();
                     }
