@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener((message) => {
                 chrome.storage.local.set(dict, () => {});
             }
             break;
-        case 'upload-file':
+        case 'commit-file':
             const name = message.name;
             // chrome.storage.
             break;
