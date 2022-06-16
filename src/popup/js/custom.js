@@ -149,7 +149,7 @@ function getUserLogin(token) {
                     headerMessage.innerHTML = `
                         <a class="text-decoration-none" target="_blank" href="https://github.com/${res.login}/${data.repository}">
                             <span class="align-middle">
-                                <img src="resources/repository.svg" width="24px" />
+                                <img src="resources/repository.png" width="20px" />
                             </span>
                             <span class="align-middle">
                                 <b>${res.login}/${data.repository}</b>
