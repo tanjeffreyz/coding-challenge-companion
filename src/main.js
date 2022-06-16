@@ -27,9 +27,24 @@ function sendRequest({
     url,
     body,
     token,
-    pass = ((data) => {}),
-    fail = ((data) => {})
+    validProperties = [],
+    pass = ((res) => {}),
+    fail = ((res) => {})
 }) {
+    // Helper function
+    validProperties = new Set(validProperties);
+    const hasValidProperty = (obj) => {
+        if (typeof obj !== 'object') return false;
+        let any = false;
+        for (let key in obj) {
+            const value = obj[key];
+            any = (any || validProperties.has(value) || hasValidProperty(value));
+            if (any) break;
+          }
+        return any;
+    }
+
+    // Send a request
     const config = {
         method,
         headers: {
@@ -39,17 +54,20 @@ function sendRequest({
     };
 
     fetch(url, config)
-    .then((res) => res.json())
-    .then((data) => {
-        console.log(data);
-        if (data.hasOwnProperty('message') && data.hasOwnProperty('documentation_url')) {
-            if (data.message === 'Requires authentication') {
-                clearStorage();
-            }
-            fail(data);
-        } else {
-            pass(data);
+    .then((res) => {
+        if (res.status === 401) {
+            clearStorage();
         }
+        return res.json()
+    })
+    .then((data) => {
+        if (data.hasOwnProperty('message') && data.hasOwnProperty('documentation_url')) {
+            if (!hasValidProperty(data)) {
+                fail(data);
+                return;
+            }
+        }
+        pass(data);
     })
     .catch((error) => {
         console.error(`Error sending request to '${url}':`, error);
@@ -82,11 +100,11 @@ chrome.runtime.onMessage.addListener((message) => {
                                 url,
                                 body,
                                 token: data.accessToken,
-                                pass: (data) => {
+                                pass: (res) => {
                                     console.log(`Successfully committed to '${url}'`);
                                 },
-                                fail: (data) => {
-                                    console.error(`Failed to commit to '${url}': ${data.message}`);
+                                fail: (res) => {
+                                    console.error(`Failed to commit to '${url}': ${res.message}`);
                                 }
                             });
                         }

@@ -43,40 +43,62 @@ function showPage(key) {
 }
 
 
-const failReauth = (req) => {
+function reAuth () {
     showPage('re-auth');
     chrome.runtime.sendMessage({type: 'clear-storage'});
 }
 
 
 function sendRequest({
-    type,
+    method,
     url,
     body,
     token,
-    pass,
-    fail,
-    validStates
+    validProperties = [],
+    pass = ((res) => {}),
+    fail = ((res) => {})
 }) {
-    validStates = (typeof validStates === 'undefined' ? new Set([200]) : new Set(validStates));
-    pass = (typeof pass === 'undefined' ? (req) => {} : pass);
-    fail = (typeof fail === 'undefined' ? (req) => {} : fail);
+    // Helper function
+    validProperties = new Set(validProperties);
+    const hasValidProperty = (obj) => {
+        if (typeof obj !== 'object') return false;
+        let any = false;
+        for (let key in obj) {
+            const value = obj[key];
+            any = (any || validProperties.has(value) || hasValidProperty(value));
+            if (any) break;
+          }
+        return any;
+    }
 
-    const req = new XMLHttpRequest();
-    req.addEventListener('readystatechange', () => {
-        if (req.readyState === 4) {
-            if (req.status === 401) {
-                failReauth(req);
-            } else if (validStates.has(req.status)) {
-                pass(req);
-            } else {
-                fail(req);
+    // Send a request
+    const config = {
+        method,
+        headers: {
+            'Authorization': `token ${token}`
+        },
+        body: (typeof body === 'undefined' ? null : JSON.stringify(body))
+    };
+
+    fetch(url, config)
+    .then((res) => {
+        if (res.status === 401) {
+            reAuth();
+        }
+        return res.json()
+    })
+    .then((data) => {
+        if (data.hasOwnProperty('message') && data.hasOwnProperty('documentation_url')) {
+            if (!hasValidProperty(data)) {
+                fail(data);
+                return;
             }
         }
+        pass(data);
+    })
+    .catch((error) => {
+        console.error(`Error sending request to '${url}':`, error);
     });
-    req.open(type, url, true);
-    req.setRequestHeader('Authorization', `token ${token}`);
-    typeof body === 'undefined' ? req.send() : req.send(JSON.stringify(body));
 }
 
 
@@ -111,7 +133,7 @@ document.getElementById('register-repo-button').onclick = () => {
     } else {
         chrome.storage.local.get('accessToken', (data) => {
             sendRequest({
-                type: 'POST',
+                method: 'POST',
                 url: 'https://api.github.com/user/repos',
                 token: data.accessToken,
                 body: {
@@ -120,13 +142,13 @@ document.getElementById('register-repo-button').onclick = () => {
                     auto_init: true,
                     description: 'A challenge a day keeps the brain cells awake! 😉'
                 },
-                pass: (req) => {
+                validProperties: ['name already exists on this account'],
+                pass: (res) => {
                     chrome.storage.local.set({'repository': repoName}, () => {
                         console.log('Success');
                         main();
                     });
-                },
-                validStates: [200, 201, 422]        // 422 means repository already exists
+                }
             });
         });
     }
@@ -138,11 +160,10 @@ document.getElementById('register-repo-button').onclick = () => {
 //////////////////////////////
 function getUserLogin(token) {
     sendRequest({
-        type: 'GET',
+        method: 'GET',
         url: 'https://api.github.com/user',
         token,
-        pass: (req) => {
-            const res = JSON.parse(req.responseText);
+        pass: (res) => {
             chrome.storage.local.get('repository', (data) => {
                 const headerMessage = document.getElementById('header-message');
                 if (data !== null && data.repository !== null) {
