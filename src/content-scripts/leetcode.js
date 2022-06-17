@@ -47,7 +47,6 @@ const LANGUAGE_CLASS = 'ant-select-selection-selected-value';
 const CODE_LINE_CLASS = 'CodeMirror-line';
 const RESULTS_CLASS = 'data__HC-i';
 const SUBMIT_BUTTON_DATA_CY = 'submit-code-btn';
-// const SUBMIT_BUTTON_DATA_CY = 'run-code-btn';
 
 
 //////////////////////////////////
@@ -123,7 +122,6 @@ setInterval(() => {
         }
     } else if (!committed && time < MAX_TIME) {     // Check for submission results
         console.log('polled');
-
         const successElement = getElementByUniqueClass(SUCCESS_CLASS);
         if (successElement !== null) {
             const resultsElements = document.getElementsByClassName(RESULTS_CLASS);
@@ -133,7 +131,6 @@ setInterval(() => {
             }
             [data.runtime, data.runtimePercentile, data.memory, data.memoryPercentile] = contents;
 
-            console.log(data);
             if (validData(data)) {
                 const folder = [ROOT, data.folder];
                 
@@ -141,7 +138,7 @@ setInterval(() => {
                 chrome.runtime.sendMessage({
                     type: 'commit-file',
                     path: folder.concat(['README.md']).join('/'),
-                    commitMessage: `Description for "${data.title}"`,
+                    commitMessage: `${data.title} (${data.difficulty})`,
                     content: data.description
                 })
 
