@@ -146,12 +146,12 @@ setInterval(() => {
                 })
 
                 // Commit solution
-                const runtimeMessage = `Runtime: ${data.runtime}, ${data.runtimePercentile}`;
-                const memoryMessage = `Memory: ${data.memory}, ${data.memoryPercentile}`;
+                const runtimeMessage = `${data.runtime}, ${data.runtimePercentile}`;
+                const memoryMessage = `${data.memory}, ${data.memoryPercentile}`;
                 chrome.runtime.sendMessage({
                     type: 'commit-file',
                     path: folder.concat([`solution.${EXTENSIONS[data.language]}`]).join('/'),
-                    commitMessage: runtimeMessage + '  |  ' + memoryMessage,
+                    commitMessage: runtimeMessage + ' | ' + memoryMessage,
                     content: data.solution
                 })
 
