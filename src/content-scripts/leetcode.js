@@ -1,4 +1,25 @@
 const ROOT = 'leetcode';        // Root folder in GitHub repository
+const EXTENSIONS = {
+    'C++':          'cpp',
+    'Java':         'java',
+    'Python':       'py',
+    'Python3':      'py',
+    'C':            'c',
+    'C#':           'cs',
+    'JavaScript':   'js',
+    'Ruby':         'rb',
+    'Swift':        'swift',
+    'Go':           'go',
+    'Scala':        'sc',
+    'Kotlin':       'kt',
+    'Rust':         'rs',
+    'PHP':          'php',
+    'TypeScript':   'ts',
+    'Racket':       'rkt',
+    'Erlang':       'erl',
+    'Elixir':       'ex'
+}
+
 const DELAY = 250;
 const MAX_TIME = 30000;
 const DEFAULT_DATA = {
@@ -11,14 +32,12 @@ const DEFAULT_DATA = {
     runtime: null,
     runtimePercentile: null,
     memory: null,
-    memoryPercentile: null,
-    lel: null,
+    memoryPercentile: null
 }
 
 let time = MAX_TIME;        // Don't start polling immediately
 let committed = true;
 let data = Object.assign({}, DEFAULT_DATA);
-
 
 const SUCCESS_CLASS = 'success__3Ai7';
 const TITLE_DATA_CY = 'question-title';
@@ -27,9 +46,8 @@ const DESCRIPTION_CLASS = 'content__u3I1 question-content__JfgR';
 const LANGUAGE_CLASS = 'ant-select-selection-selected-value';
 const CODE_LINE_CLASS = 'CodeMirror-line';
 const RESULTS_CLASS = 'data__HC-i';
-
-// const SUBMIT_BUTTON = 'submit-code-btn';
-const SUBMIT_BUTTON_DATA_CY = 'run-code-btn';
+const SUBMIT_BUTTON_DATA_CY = 'submit-code-btn';
+// const SUBMIT_BUTTON_DATA_CY = 'run-code-btn';
 
 
 //////////////////////////////////
@@ -128,6 +146,14 @@ setInterval(() => {
                 })
 
                 // Commit solution
+                const runtimeMessage = `Runtime: ${data.runtime}, ${data.runtimePercentile}`;
+                const memoryMessage = `Memory: ${data.memory}, ${data.memoryPercentile}`;
+                chrome.runtime.sendMessage({
+                    type: 'commit-file',
+                    path: folder.concat([`solution.${EXTENSIONS[data.language]}`]).join('/'),
+                    commitMessage: runtimeMessage + '  |  ' + memoryMessage,
+                    content: data.solution
+                })
 
                 console.log(`Committed submission for "${data.title}"`);
                 committed = true;

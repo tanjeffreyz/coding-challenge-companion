@@ -98,8 +98,9 @@ chrome.runtime.onMessage.addListener((message) => {
                                 validProperties: ['Not Found'],
                                 pass: (res) => {
                                     const reg = /\s+/g;
-                                    const oldContent = res.content;     
-                                    const newContent = btoa(message.content);       // Base-64 encoding
+                                    const filter = /[\u0250-\ue007]/g;      // Filter out non-Latin characters
+                                    const oldContent = res.content;
+                                    const newContent = btoa(message.content.replace(filter, ''));    // Base-64 encoding
                                     if ((typeof oldContent === 'undefined') || (newContent.replace(reg, '') !== oldContent.replace(reg, ''))) {
                                         const body = {
                                             message: message.commitMessage,
