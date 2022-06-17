@@ -2,12 +2,13 @@ const ROOT = 'leetcode';        // Root folder in GitHub repository
 const DELAY = 250;
 const MAX_TIME = 30000;
 const DEFAULT_DATA = {
+    success: null,
     title: null,
     folder: null,
     difficulty: null,
-    // language: null,
+    language: null,
     description: null,
-    // solution: null
+    solution: null
 }
 
 let time = MAX_TIME;        // Don't start polling immediately
@@ -19,6 +20,7 @@ const TITLE_DATA_CY = 'question-title';
 const DIFFICULTY_PARENT_CLASS = 'css-10o4wqw';
 const DESCRIPTION_CLASS = 'content__u3I1 question-content__JfgR';
 const LANGUAGE_CLASS = 'ant-select-selection-selected-value';
+const CODE_LINE_CLASS = 'CodeMirror-line';
 // const SUBMIT_BUTTON = 'submit-code-btn';
 const SUBMIT_BUTTON_DATA_CY = 'run-code-btn';
 
@@ -69,22 +71,31 @@ function startPoll() {
     const descriptionElement = getElementByUniqueClass(DESCRIPTION_CLASS);
     const header = `<div align="center"><h1>${data.title} (${data.difficulty})</h1></div>`;
     data.description = header + descriptionElement.innerHTML;
-    console.log(data);
+
+    const codeLines = document.getElementsByClassName(CODE_LINE_CLASS);
+    const lines = [];
+    for (let line of codeLines) {
+        lines.push(line.textContent);
+    }
+    data.solution = lines.join('\n').trim();
 }
 
 
 let submitButton = null;
 setInterval(() => {
-    if (submitButton === null) {    // Keep searching for button until it loads
+    if (submitButton === null) {        // Keep searching for button until it loads
         submitButton = getElementByAttribute('data-cy', SUBMIT_BUTTON_DATA_CY);
         if (submitButton !== null) {
             submitButton.onclick = startPoll;
         }
-    } else if (!committed && time < MAX_TIME) {
-        console.log(data);
+    } else if (!committed && time < MAX_TIME) {     // Check for submission results
+        
+
         if (validData(data)) {
-            // Commit README.md
+            console.log(data);
             const folder = [ROOT, data.folder];
+            
+            // Commit README.md
             chrome.runtime.sendMessage({
                 type: 'commit-file',
                 path: folder.concat(['README.md']).join('/'),
@@ -92,10 +103,10 @@ setInterval(() => {
                 content: data.description
             })
 
-            console.log('committed');
+            console.log(`Committed submission for "${data.title}"`);
             committed = true;
         }
+        console.log('polled');
         time += DELAY;
-        // console.log(time);
     }
 }, DELAY);
