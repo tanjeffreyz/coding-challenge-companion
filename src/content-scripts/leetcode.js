@@ -2,13 +2,17 @@ const ROOT = 'leetcode';        // Root folder in GitHub repository
 const DELAY = 250;
 const MAX_TIME = 30000;
 const DEFAULT_DATA = {
-    success: null,
     title: null,
     folder: null,
     difficulty: null,
     language: null,
     description: null,
-    solution: null
+    solution: null,
+    runtime: null,
+    runtimePercentile: null,
+    memory: null,
+    memoryPercentile: null,
+    lel: null,
 }
 
 let time = MAX_TIME;        // Don't start polling immediately
@@ -16,11 +20,14 @@ let committed = true;
 let data = Object.assign({}, DEFAULT_DATA);
 
 
+const SUCCESS_CLASS = 'success__3Ai7';
 const TITLE_DATA_CY = 'question-title';
 const DIFFICULTY_PARENT_CLASS = 'css-10o4wqw';
 const DESCRIPTION_CLASS = 'content__u3I1 question-content__JfgR';
 const LANGUAGE_CLASS = 'ant-select-selection-selected-value';
 const CODE_LINE_CLASS = 'CodeMirror-line';
+const RESULTS_CLASS = 'data__HC-i';
+
 // const SUBMIT_BUTTON = 'submit-code-btn';
 const SUBMIT_BUTTON_DATA_CY = 'run-code-btn';
 
@@ -34,7 +41,11 @@ function getElementByAttribute(key, value) {
 
 
 function getElementByUniqueClass(classString) {
-    return document.getElementsByClassName(classString)[0];
+    const elementList = document.getElementsByClassName(classString);
+    if (elementList.length > 0) {
+        return elementList[0];
+    }
+    return null;
 }
 
 
@@ -45,7 +56,8 @@ function formatTitle(title) {
 
 function validData(dataObj) {
     for (let key in DEFAULT_DATA) {
-        if (dataObj[key] === null) return false;
+        const value = dataObj[key];
+        if (typeof value === 'undefined' || value === null) return false;
     }
     return true;
 }
@@ -78,6 +90,9 @@ function startPoll() {
         lines.push(line.textContent);
     }
     data.solution = lines.join('\n').trim();
+
+    const languageElement = getElementByUniqueClass(LANGUAGE_CLASS);
+    data.language = languageElement.textContent;
 }
 
 
@@ -89,24 +104,35 @@ setInterval(() => {
             submitButton.onclick = startPoll;
         }
     } else if (!committed && time < MAX_TIME) {     // Check for submission results
-        
-
-        if (validData(data)) {
-            console.log(data);
-            const folder = [ROOT, data.folder];
-            
-            // Commit README.md
-            chrome.runtime.sendMessage({
-                type: 'commit-file',
-                path: folder.concat(['README.md']).join('/'),
-                commitMessage: `Description for "${data.title}"`,
-                content: data.description
-            })
-
-            console.log(`Committed submission for "${data.title}"`);
-            committed = true;
-        }
         console.log('polled');
+
+        const successElement = getElementByUniqueClass(SUCCESS_CLASS);
+        if (successElement !== null) {
+            const resultsElements = document.getElementsByClassName(RESULTS_CLASS);
+            const contents = [];
+            for (let element of resultsElements) {
+                contents.push(element.textContent);
+            }
+            [data.runtime, data.runtimePercentile, data.memory, data.memoryPercentile] = contents;
+
+            console.log(data);
+            if (validData(data)) {
+                const folder = [ROOT, data.folder];
+                
+                // Commit README.md
+                chrome.runtime.sendMessage({
+                    type: 'commit-file',
+                    path: folder.concat(['README.md']).join('/'),
+                    commitMessage: `Description for "${data.title}"`,
+                    content: data.description
+                })
+
+                // Commit solution
+
+                console.log(`Committed submission for "${data.title}"`);
+                committed = true;
+            }
+        }
         time += DELAY;
     }
 }, DELAY);
