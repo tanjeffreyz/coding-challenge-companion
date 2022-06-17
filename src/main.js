@@ -100,7 +100,7 @@ chrome.runtime.onMessage.addListener((message) => {
                                     const reg = /\s+/g;
                                     const oldContent = res.content;     
                                     const newContent = btoa(message.content);       // Base-64 encoding
-                                    if (newContent.replace(reg, '') !== oldContent.replace(reg, '')) {
+                                    if ((typeof oldContent === 'undefined') || (newContent.replace(reg, '') !== oldContent.replace(reg, ''))) {
                                         const body = {
                                             message: message.commitMessage,
                                             content: newContent,

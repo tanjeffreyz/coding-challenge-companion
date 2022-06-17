@@ -1,10 +1,13 @@
+const ROOT = 'leetcode';        // Root folder in GitHub repository
 const DELAY = 250;
 const MAX_TIME = 30000;
 const DEFAULT_DATA = {
     title: null,
     folder: null,
     difficulty: null,
-    description: null
+    // language: null,
+    description: null,
+    // solution: null
 }
 
 let time = MAX_TIME;        // Don't start polling immediately
@@ -15,6 +18,7 @@ let data = Object.assign({}, DEFAULT_DATA);
 const TITLE_DATA_CY = 'question-title';
 const DIFFICULTY_PARENT_CLASS = 'css-10o4wqw';
 const DESCRIPTION_CLASS = 'content__u3I1 question-content__JfgR';
+const LANGUAGE_CLASS = 'ant-select-selection-selected-value';
 // const SUBMIT_BUTTON = 'submit-code-btn';
 const SUBMIT_BUTTON_DATA_CY = 'run-code-btn';
 
@@ -63,7 +67,8 @@ function startPoll() {
     data.difficulty = difficultyElement.textContent;
 
     const descriptionElement = getElementByUniqueClass(DESCRIPTION_CLASS);
-    data.description = descriptionElement.innerHTML;
+    const header = `<div align="center"><h1>${data.title} (${data.difficulty})</h1></div>`;
+    data.description = header + descriptionElement.innerHTML;
     console.log(data);
 }
 
@@ -76,13 +81,21 @@ setInterval(() => {
             submitButton.onclick = startPoll;
         }
     } else if (!committed && time < MAX_TIME) {
+        console.log(data);
         if (validData(data)) {
+            // Commit README.md
+            const folder = [ROOT, data.folder];
             chrome.runtime.sendMessage({
                 type: 'commit-file',
-                
+                path: folder.concat(['README.md']).join('/'),
+                commitMessage: `Description for "${data.title}"`,
+                content: data.description
             })
+
+            console.log('committed');
+            committed = true;
         }
         time += DELAY;
-        console.log(time);
+        // console.log(time);
     }
 }, DELAY);
