@@ -37,9 +37,9 @@ function formatTitle(title) {
 }
 
 
-function validContents(contentObj) {
+function validData(dataObj) {
     for (let key in DEFAULT_DATA) {
-        if (data[key] === null) return false;
+        if (dataObj[key] === null) return false;
     }
     return true;
 }
@@ -76,6 +76,12 @@ setInterval(() => {
             submitButton.onclick = startPoll;
         }
     } else if (!committed && time < MAX_TIME) {
+        if (validData(data)) {
+            chrome.runtime.sendMessage({
+                type: 'commit-file',
+                
+            })
+        }
         time += DELAY;
         console.log(time);
     }

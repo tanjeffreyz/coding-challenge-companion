@@ -80,7 +80,7 @@ chrome.runtime.onMessage.addListener((message) => {
         case 'clear-storage':
             clearStorage();
             break;
-        case 'commit-file':
+        case 'commit-file':     // Requires {path, content, commitMessage}
             chrome.storage.local.get(
                 ['accessToken', 'login', 'repository'],
                 (data) => {
