@@ -57,6 +57,7 @@ a:hover img {
 
 .settings .sign-out:hover {
     background-color: #e35966;
+    color: white;
 }
 
 .settings .dropdown-menu {
