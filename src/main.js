@@ -89,6 +89,12 @@ function getPrevSha(callback) {
 //////////////////////////////
 //      Main Functions      //
 //////////////////////////////
+/**
+ * Commits each file in FILES to the GitHub repository
+ * @param {Array} files 
+ * @param {Object} data 
+ * @returns 
+ */
 function commitFile(files, data) {
     console.log(files);
     if (files.length === 0) return;
@@ -126,9 +132,11 @@ function commitFile(files, data) {
                             console.error(`Failed to commit to '${url}': ${res.message}`);
                         },
                         either: (res) => {
-                            commitFile(files, data);             // This way, all messages are sent in series
+                            commitFile(files, data);
                         }
                     });
+                } else {
+                    commitFile(files, data);
                 }
             });
         }
@@ -140,8 +148,7 @@ function commitFile(files, data) {
 //      Main Listener       //
 //////////////////////////////
 chrome.runtime.onMessage.addListener((message) => {
-    console.log(message);
-
+    console.log('Received message:', message);
     switch(message.type) {
         case 'clear-storage':
             clearStorage();
