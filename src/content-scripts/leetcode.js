@@ -32,7 +32,8 @@ const DEFAULT_DATA = {
     runtime: null,
     runtimePercentile: null,
     memory: null,
-    memoryPercentile: null
+    memoryPercentile: null,
+    topics: null
 }
 
 let time = MAX_TIME;        // Don't start polling immediately
@@ -46,6 +47,7 @@ const DESCRIPTION_CLASS = 'content__u3I1 question-content__JfgR';
 const LANGUAGE_CLASS = 'ant-select-selection-selected-value';
 const CODE_LINE_CLASS = 'CodeMirror-line';
 const RESULTS_CLASS = 'data__HC-i';
+const TOPIC_CLASS = 'topic-tag__1jni';
 const SUBMIT_BUTTON_DATA_CY = 'submit-code-btn';
 
 
@@ -116,6 +118,15 @@ function startPoll() {
 
     const languageElement = getElementByUniqueClass(LANGUAGE_CLASS);
     data.language = languageElement.textContent;
+
+    const topicElements = document.getElementsByClassName(TOPIC_CLASS);
+    data.topics = [];
+    for (let topic of topicElements) {
+        data.topics.push({
+            name: topic.textContent,
+            link: topic.href
+        });
+    }
 }
 
 

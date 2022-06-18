@@ -1,8 +1,7 @@
 KEYS = [
     'accessToken',
     'login',
-    'repository',
-    'prevSha'
+    'repository'
 ];
 
 
@@ -79,13 +78,6 @@ function sendRequest({
 }
 
 
-function getPrevSha(callback) {
-    chrome.storage.local.get('prevSha', (data) => {
-        callback(data.prevSha);
-    });
-}
-
-
 //////////////////////////////
 //      Main Functions      //
 //////////////////////////////
@@ -106,13 +98,15 @@ function commitFile(files, data) {
         token: data.accessToken,
         validProperties: ['Not Found'],
         pass: (res) => {
+            const whitespace = /[\s\n]/g;
             const filter = /[\u0250-\ue007]/g;      // Filter out non-Latin characters
+            const oldContent = res.content;
             const newContent = btoa(file.content.replace(filter, ''));    // Base-64 encoding
-            getPrevSha((prevSha) => {
+            if ((typeof oldContent === 'undefined') || (newContent.replace(whitespace, '') !== oldContent.replace(whitespace, ''))) {
                 const body = {
                     message: file.commitMessage,
                     content: newContent,
-                    sha: (prevSha === null ? res.sha : prevSha)
+                    sha: res.sha
                 };
                 sendRequest({        // Upload or update file
                     method: 'PUT',
@@ -120,17 +114,19 @@ function commitFile(files, data) {
                     body,
                     token: data.accessToken,
                     pass: (res) => {
-                        console.log(res);
-                        console.log(`Successfully committed to '${url}'`);
+                        console.log(`Successfully committed to '${file.path}'`);
                     },
                     fail: (res) => {
-                        console.error(`Failed to commit to '${url}': ${res.message}`);
+                        console.error(`Failed to commit to '${file.path}': ${res.message}`);
                     },
                     either: (res) => {
                         commitFile(files, data);
                     }
                 });
-            });
+            } else {
+                console.log(`File '${file.path}' is already up to date`)
+                commitFile(files, data);
+            }
         }
     });
 }
