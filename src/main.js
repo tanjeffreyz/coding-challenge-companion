@@ -1,7 +1,8 @@
 KEYS = [
     'accessToken',
     'login',
-    'repository'
+    'repository',
+    'prevSha'
 ];
 
 
@@ -29,7 +30,8 @@ function sendRequest({
     token,
     validProperties = [],
     pass = ((res) => {}),
-    fail = ((res) => {})
+    fail = ((res) => {}),
+    either = ((res) => {})
 }) {
     // Helper function
     validProperties = new Set(validProperties);
@@ -64,10 +66,12 @@ function sendRequest({
         if (data.hasOwnProperty('message') && data.hasOwnProperty('documentation_url')) {
             if (!hasValidProperty(data)) {
                 fail(data);
+                either(data);
                 return;
             }
         }
         pass(data);
+        either(data);
     })
     .catch((error) => {
         console.error(`Error sending request to '${url}':`, error);
@@ -75,12 +79,74 @@ function sendRequest({
 }
 
 
+function getPrevSha(callback) {
+    chrome.storage.local.get('prevSha', (data) => {
+        callback(data.prevSha);
+    });
+}
+
+
+//////////////////////////////
+//      Main Functions      //
+//////////////////////////////
+function commitFile(files, data) {
+    console.log(files);
+    if (files.length === 0) return;
+    const file = files.shift();
+    console.log(file);
+    const url = `https://api.github.com/repos/${data.login}/${data.repository}/contents/${file.path}`;
+    sendRequest({       // Check if file already exists
+        method: 'GET',
+        url,
+        token: data.accessToken,
+        validProperties: ['Not Found'],
+        pass: (res) => {
+            const reg = /\s+/g;
+            const filter = /[\u0250-\ue007]/g;      // Filter out non-Latin characters
+            const oldContent = res.content;
+            const newContent = btoa(file.content.replace(filter, ''));    // Base-64 encoding
+            getPrevSha((prevSha) => {
+                if ((typeof oldContent === 'undefined') || (newContent.replace(reg, '') !== oldContent.replace(reg, ''))) {
+                    console.log(oldContent, newContent);
+                    const body = {
+                        message: file.commitMessage,
+                        content: newContent,
+                        sha: (prevSha === null ? res.sha : prevSha)
+                    };
+                    sendRequest({        // Upload or update file
+                        method: 'PUT',
+                        url,
+                        body,
+                        token: data.accessToken,
+                        pass: (res) => {
+                            console.log(res);
+                            console.log(`Successfully committed to '${url}'`);
+                        },
+                        fail: (res) => {
+                            console.error(`Failed to commit to '${url}': ${res.message}`);
+                        },
+                        either: (res) => {
+                            commitFile(files, data);             // This way, all messages are sent in series
+                        }
+                    });
+                }
+            });
+        }
+    });
+}
+
+
+//////////////////////////////
+//      Main Listener       //
+//////////////////////////////
 chrome.runtime.onMessage.addListener((message) => {
+    console.log(message);
+
     switch(message.type) {
         case 'clear-storage':
             clearStorage();
             break;
-        case 'commit-file':     // Requires {path, content, commitMessage}
+        case 'commit-files':     // Requires {path, content, commitMessage}
             chrome.storage.local.get(
                 ['accessToken', 'login', 'repository'],
                 (data) => {
@@ -90,42 +156,13 @@ chrome.runtime.onMessage.addListener((message) => {
                         } else if (data.repository === null) {
                             console.error(`Failed to commit because no repository has been registered`);
                         } else {
-                            const url = `https://api.github.com/repos/${data.login}/${data.repository}/contents/${message.path}`;
-                            sendRequest({       // Check if file already exists
-                                method: 'GET',
-                                url,
-                                token: data.accessToken,
-                                validProperties: ['Not Found'],
-                                pass: (res) => {
-                                    const reg = /\s+/g;
-                                    const filter = /[\u0250-\ue007]/g;      // Filter out non-Latin characters
-                                    const oldContent = res.content;
-                                    const newContent = btoa(message.content.replace(filter, ''));    // Base-64 encoding
-                                    if ((typeof oldContent === 'undefined') || (newContent.replace(reg, '') !== oldContent.replace(reg, ''))) {
-                                        const body = {
-                                            message: message.commitMessage,
-                                            content: newContent,
-                                            sha: res.sha
-                                        };
-                                        sendRequest({        // Upload or update file
-                                            method: 'PUT',
-                                            url,
-                                            body,
-                                            token: data.accessToken,
-                                            pass: (res) => {
-                                                console.log(`Successfully committed to '${url}'`);
-                                            },
-                                            fail: (res) => {
-                                                console.error(`Failed to commit to '${url}': ${res.message}`);
-                                            }
-                                        });
-                                    }
-                                }
-                            });
+                            commitFile(message.files, data);
                         }
                     }
                 }
             );
             break;
+        default:
+            console.error('Invalid message type:', message.type);
     }
 });

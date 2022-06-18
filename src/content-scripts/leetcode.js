@@ -134,23 +134,26 @@ setInterval(() => {
             if (validData(data)) {
                 const folder = [ROOT, data.folder];
                 
-                // Commit README.md
-                chrome.runtime.sendMessage({
-                    type: 'commit-file',
+                // README.md
+                const readme = {
                     path: folder.concat(['README.md']).join('/'),
                     commitMessage: `${data.title} (${data.difficulty})`,
                     content: data.description
-                })
-
-                // Commit solution
+                }
+                
+                // Solution
                 const runtimeMessage = `${data.runtime}, ${data.runtimePercentile}`;
                 const memoryMessage = `${data.memory}, ${data.memoryPercentile}`;
-                chrome.runtime.sendMessage({
-                    type: 'commit-file',
+                const solution = {
                     path: folder.concat([`solution.${EXTENSIONS[data.language]}`]).join('/'),
                     commitMessage: runtimeMessage + ' | ' + memoryMessage,
                     content: data.solution
-                })
+                };
+
+                chrome.runtime.sendMessage({
+                    type: 'commit-files',
+                    files: [readme, solution]
+                });
 
                 console.log(`Committed submission for "${data.title}"`);
                 committed = true;
