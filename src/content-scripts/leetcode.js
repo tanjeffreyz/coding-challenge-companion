@@ -106,8 +106,11 @@ function startPoll() {
 
     const codeLines = document.getElementsByClassName(CODE_LINE_CLASS);
     const lines = [];
+    const tempPre = document.createElement('pre');
     for (let line of codeLines) {
-        lines.push(line.textContent.replace(/[\u0020\u00C2\u00A0]/g, ' '));
+        const lineContents = line.innerHTML.replace(/\&nbsp;/g, ' ');
+        tempPre.innerHTML = lineContents;
+        lines.push(tempPre.textContent);
     }
     data.solution = lines.join('\n').trim();
 
