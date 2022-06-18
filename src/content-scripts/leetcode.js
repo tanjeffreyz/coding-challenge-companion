@@ -66,8 +66,11 @@ function getElementByUniqueClass(classString) {
 }
 
 
-function formatTitle(title) {
-    return title.replace(/[^a-zA-Z0-9 ]+/g, '').replace(/[ ]+/g, '-').toLowerCase();
+function formatPath(title) {
+    const alphaNumeric = title.replace(/[^a-zA-Z0-9\(\) ]+/g, '');
+    const dashed = alphaNumeric.replace(/[\(\) ]+/g, '-');
+    const trimmed = dashed.replace(/^\-+|\-+$/g, '');
+    return trimmed.toLowerCase();
 }
 
 
@@ -92,7 +95,7 @@ function startPoll() {
     // Grab static information
     const titleElement = getElementByAttribute('data-cy', TITLE_DATA_CY);
     data.title = titleElement.textContent;
-    data.folder = formatTitle(data.title);
+    data.folder = formatPath(data.title);
 
     const difficultyElement = document.getElementsByClassName(DIFFICULTY_PARENT_CLASS)[0].firstChild;
     data.difficulty = difficultyElement.textContent;
