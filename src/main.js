@@ -96,10 +96,9 @@ function getPrevSha(callback) {
  * @returns 
  */
 function commitFile(files, data) {
-    console.log(files);
     if (files.length === 0) return;
     const file = files.shift();
-    console.log(file);
+    console.log(`Committing file '${file.path}':`, file);
     const url = `https://api.github.com/repos/${data.login}/${data.repository}/contents/${file.path}`;
     sendRequest({       // Check if file already exists
         method: 'GET',
@@ -113,7 +112,6 @@ function commitFile(files, data) {
             const newContent = btoa(file.content.replace(filter, ''));    // Base-64 encoding
             getPrevSha((prevSha) => {
                 if ((typeof oldContent === 'undefined') || (newContent.replace(reg, '') !== oldContent.replace(reg, ''))) {
-                    console.log(oldContent, newContent);
                     const body = {
                         message: file.commitMessage,
                         content: newContent,
