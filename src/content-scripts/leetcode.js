@@ -102,7 +102,7 @@ function startPoll() {
 
     const descriptionElement = getElementByUniqueClass(DESCRIPTION_CLASS);
     const header = `<div align="center"><h1>${data.title} (${data.difficulty})</h1></div>`;
-    data.description = header + descriptionElement.innerHTML;
+    data.description = header + '\n\n' + descriptionElement.innerHTML;
 
     const codeLines = document.getElementsByClassName(CODE_LINE_CLASS);
     const lines = [];
