@@ -6,12 +6,12 @@ KEYS = [
 ];
 
 
-function clearStorage() {
+function clearStorage(callback) {
+    const dict = {};
     for (let i = 0; i < KEYS.length; i++) {
-        const dict = {};
         dict[KEYS[i]] = null;
-        chrome.storage.local.set(dict, () => {});
     }
+    chrome.storage.local.set(dict, callback);
 }
 
 
@@ -139,11 +139,13 @@ function commitFile(files, data) {
 //////////////////////////////
 //      Main Listener       //
 //////////////////////////////
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log('Received message:', message);
     switch(message.type) {
         case 'clear-storage':
-            clearStorage();
+            clearStorage((response) => {
+                sendResponse('');
+            });
             break;
         case 'commit-files':     // Requires {path, content, commitMessage}
             chrome.storage.local.get(

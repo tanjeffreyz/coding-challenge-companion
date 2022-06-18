@@ -155,6 +155,16 @@ document.getElementById('register-repo-button').onclick = () => {
 };
 
 
+// Settings
+document.getElementById('settings-change-repo').onclick = () => {
+    chrome.storage.local.set({repository: null}, main);
+};
+
+document.getElementById('settings-sign-out').onclick = () => {
+    chrome.runtime.sendMessage({type: 'clear-storage'}, main);
+};
+
+
 //////////////////////////////
 //      Main Functions      //
 //////////////////////////////
