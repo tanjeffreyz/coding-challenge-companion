@@ -149,13 +149,26 @@ setInterval(() => {
             [data.runtime, data.runtimePercentile, data.memory, data.memoryPercentile] = contents;
 
             if (validData(data)) {
+                const defaultCommitMessage = `${data.title} (${data.difficulty})`;
                 const folder = [ROOT, data.folder];
                 
                 // README.md
                 const readme = {
                     path: folder.concat(['README.md']).join('/'),
-                    commitMessage: `${data.title} (${data.difficulty})`,
-                    content: data.description
+                    commitMessage: defaultCommitMessage,
+                    content: data.description + '\n'
+                }
+
+                // Information
+                const infoJson = {
+                    title: data.title,
+                    level: data.difficulty,
+                    topics: data.topics
+                }
+                const info = {
+                    path: folder.concat(['info.json']).join('/'),
+                    commitMessage: defaultCommitMessage,
+                    content: JSON.stringify(infoJson, null, 2) + '\n'
                 }
                 
                 // Solution
@@ -169,7 +182,7 @@ setInterval(() => {
 
                 chrome.runtime.sendMessage({
                     type: 'commit-files',
-                    files: [readme, solution]
+                    files: [readme, info, solution]
                 });
 
                 console.log(`Committed submission for "${data.title}"`);
