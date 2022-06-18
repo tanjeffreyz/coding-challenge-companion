@@ -106,36 +106,30 @@ function commitFile(files, data) {
         token: data.accessToken,
         validProperties: ['Not Found'],
         pass: (res) => {
-            const reg = /\s+/g;
             const filter = /[\u0250-\ue007]/g;      // Filter out non-Latin characters
-            const oldContent = res.content;
             const newContent = btoa(file.content.replace(filter, ''));    // Base-64 encoding
             getPrevSha((prevSha) => {
-                if ((typeof oldContent === 'undefined') || (newContent.replace(reg, '') !== oldContent.replace(reg, ''))) {
-                    const body = {
-                        message: file.commitMessage,
-                        content: newContent,
-                        sha: (prevSha === null ? res.sha : prevSha)
-                    };
-                    sendRequest({        // Upload or update file
-                        method: 'PUT',
-                        url,
-                        body,
-                        token: data.accessToken,
-                        pass: (res) => {
-                            console.log(res);
-                            console.log(`Successfully committed to '${url}'`);
-                        },
-                        fail: (res) => {
-                            console.error(`Failed to commit to '${url}': ${res.message}`);
-                        },
-                        either: (res) => {
-                            commitFile(files, data);
-                        }
-                    });
-                } else {
-                    commitFile(files, data);
-                }
+                const body = {
+                    message: file.commitMessage,
+                    content: newContent,
+                    sha: (prevSha === null ? res.sha : prevSha)
+                };
+                sendRequest({        // Upload or update file
+                    method: 'PUT',
+                    url,
+                    body,
+                    token: data.accessToken,
+                    pass: (res) => {
+                        console.log(res);
+                        console.log(`Successfully committed to '${url}'`);
+                    },
+                    fail: (res) => {
+                        console.error(`Failed to commit to '${url}': ${res.message}`);
+                    },
+                    either: (res) => {
+                        commitFile(files, data);
+                    }
+                });
             });
         }
     });
