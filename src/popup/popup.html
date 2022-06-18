@@ -15,6 +15,16 @@
                     <div id="header-message">
                         <p>Retrieving data from GitHub...</p>
                     </div>
+                    <div class="dropdown settings">
+                        <button type="button" class="btn btn-primary shadow-none" id="settings-button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img class="invert-color" src="resources/gear.svg" width="16px" />
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="settings-button">
+                            <li><a class="dropdown-item start" href="#" id="settings-change-repo">Change Repository</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item end sign-out" href="#" id="settings-sign-out">Sign Out</a></li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- GitHub authentication -->
@@ -68,7 +78,7 @@
                 </div>
 
                 <!-- Main footer -->
-                <div class="row mt-3 mb-2">
+                <div class="row mt-4 mb-2 ms-1 me-1 pt-1 footer">
                     <div class="col"></div>
                     <div class="col">
                         <a target="_blank" href="https://github.com/tanjeffreyz/coding-challenge-companion">
@@ -81,6 +91,7 @@
             <div class="col"></div>
         </div>
         
+        <script src="js/bootstrap.bundle.js"></script>
         <script src="js/custom.js"></script>
     </body>
 </html>
