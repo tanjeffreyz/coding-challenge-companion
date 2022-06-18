@@ -11,9 +11,7 @@ function clearStorage(callback) {
     for (let i = 0; i < KEYS.length; i++) {
         dict[KEYS[i]] = null;
     }
-    chrome.storage.local.set(dict, () => {
-        callback();
-    });
+    chrome.storage.local.set(dict, callback);
 }
 
 
