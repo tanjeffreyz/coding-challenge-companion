@@ -44,7 +44,8 @@ a:hover img {
 }
 
 .settings .dropdown-item {
-    padding: 0.125rem 0.5rem;
+    padding: 0.2rem 0.5rem;
+    font-weight: bold;
 }
 
 .settings .dropdown-item.start {
@@ -62,6 +63,8 @@ a:hover img {
 
 .settings .dropdown-menu {
     padding: 0;
+    font-size: 0.8rem;
+    border-width: 3px;
 }
 
 .settings .dropdown-divider {
