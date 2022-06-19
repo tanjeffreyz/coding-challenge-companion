@@ -46,6 +46,7 @@ a:hover img {
 .settings .dropdown-item {
     padding: 0.2rem 0.5rem;
     font-weight: bold;
+    color: #484848;
 }
 
 .settings .dropdown-item.start {
