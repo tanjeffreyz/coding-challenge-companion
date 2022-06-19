@@ -152,7 +152,7 @@ document.getElementById('register-repo-button').onclick = () => {
             validProperties: ['Could not clone: Name already exists on this account'],
             pass: (res) => {
                 chrome.storage.local.set({'repository': repoName}, () => {
-                    console.log('Success');
+                    console.log(`Successfully registered repository '${repoName}'`);
                     main();
                 });
             }
