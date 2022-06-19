@@ -71,3 +71,24 @@ a:hover img {
 .settings .dropdown-divider {
     margin: 0;
 }
+
+.loading-circle {
+    position: relative;
+    vertical-align: middle;
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    border: 5px solid #ffffff9b;
+    border-top: 5px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 1s infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

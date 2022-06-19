@@ -136,9 +136,15 @@ registerRepoInput.onkeydown = (e) => {
 };
 
 
+const registerRepoStatic = document.getElementById('register-repo-static');
+const registerRepoLoading = document.getElementById('register-repo-loading');
 document.getElementById('register-repo-button').onclick = () => {
     const repoName = registerRepoInput.value.trim('-');
     if (repoName === '') return;
+
+    // Show loading animation
+    registerRepoStatic.hidden = true;
+    registerRepoLoading.hidden = false;
     chrome.storage.local.get('accessToken', (data) => {
         sendRequest({
             method: 'POST',
@@ -155,6 +161,11 @@ document.getElementById('register-repo-button').onclick = () => {
                     console.log(`Successfully registered repository '${repoName}'`);
                     main();
                 });
+            },
+            either: (res) => {
+                // Hide loading animation until next time
+                registerRepoStatic.hidden = false;
+                registerRepoLoading.hidden = true;
             }
         });
     });
