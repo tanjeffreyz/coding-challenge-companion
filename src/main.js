@@ -61,7 +61,7 @@ function sendRequest({
         if (res.status === 401) {
             clearStorage();
         }
-        return res.json()
+        return res.json();
     })
     .then((data) => {
         if (data.hasOwnProperty('message') && data.hasOwnProperty('documentation_url')) {

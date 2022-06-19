@@ -88,7 +88,7 @@ function sendRequest({
         if (res.status === 401) {
             reAuth();
         }
-        return res.json()
+        return res.json();
     })
     .then((data) => {
         if (data.hasOwnProperty('message') && data.hasOwnProperty('documentation_url')) {
@@ -104,6 +104,11 @@ function sendRequest({
     .catch((error) => {
         console.error(`Error sending request to '${url}':`, error);
     });
+}
+
+
+function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 
@@ -174,9 +179,9 @@ function graphLevels(levels) {
     const counts = [];
     const colors = [];
     for (let i = levels.length - 1; i >= 0; i--) {
-        labels.push(level[i].name);
-        counts.push(level[i].count);
-        colors.push(level[i].color);
+        labels.push(capitalize(levels[i].name));
+        counts.push(levels[i].count);
+        colors.push(levels[i].color);
     }
     const config = {
         type: 'doughnut',
@@ -187,22 +192,67 @@ function graphLevels(levels) {
                 data: counts,
                 backgroundColor: colors
             }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    reverse: true,
+                    labels: {
+                        usePointStyle: true
+                    }
+                }
+            }
         }
     };
     const levelsChart = new Chart(document.getElementById('summary-levels'), config);
 }
 
-function graphLanguages(levels) {
-    const data = {
-
-    };
+function graphLanguages(languages) {
+    const labels = [];
+    const counts = [];
+    const colors = [];
+    for (let language of languages) {
+        labels.push(language.name);
+        counts.push(language.count);
+        colors.push(language.color);
+    }
     const config = {
-
-    };
-    const languagesChart = new Chart(
-        document.getElementById('summary-languages'),
-        config
-    );
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: colors
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    ticks: {
+                        stepSize: 1,
+                        display: false
+                    },
+                    grid: {
+                        drawBorder: false,
+                        display: false
+                    }
+                },
+                y: {
+                    grid: {
+                        drawBorder: false,
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    }
+    const languagesChart = new Chart(document.getElementById('summary-languages'), config);
 }
 
 function graphMetrics() {
@@ -215,11 +265,12 @@ function graphMetrics() {
                 data.repository !== null) {
                 sendRequest({
                     method: 'GET',
-                    url: `https://raw.githubusercontent.com/${data.login}/${data.repository}/main/src/output/stats.json`,
+                    url: `https://api.github.com/repos/${data.login}/${data.repository}/contents/src/output/stats.json`,
                     token: data.accessToken,
                     pass: (res) => {
-                        graphLevels(res.levels);
-                        graphLanguages(res.languages);
+                        stats = JSON.parse(atob(res.content));
+                        graphLevels(stats.levels);
+                        graphLanguages(stats.languages);
                     }
                 });
             }
