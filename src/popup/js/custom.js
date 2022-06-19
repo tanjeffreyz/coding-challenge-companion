@@ -137,8 +137,6 @@ document.getElementById('register-repo-button').onclick = () => {
                 url: 'https://api.github.com/repos/tanjeffreyz/coding-challenges-template/generate',
                 token: data.accessToken,
                 body: {
-                    template_owner: 'tanjeffreyz',
-                    template_repo: 'coding-challenges-template',
                     name: repoName,
                     private: true,
                     description: 'A challenge a day keeps the brain cells awake! 😉'
