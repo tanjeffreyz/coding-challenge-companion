@@ -56,7 +56,8 @@ function sendRequest({
     token,
     validProperties = [],
     pass = ((res) => {}),
-    fail = ((res) => {})
+    fail = ((res) => {}),
+    either = ((res) => {})
 }) {
     // Helper function
     validProperties = new Set(validProperties);
@@ -72,11 +73,13 @@ function sendRequest({
     }
 
     // Send a request
+    const headers = {};
+    if (typeof token !== 'undefined') {
+        headers['Authorization'] = `token ${token}`;
+    }
     const config = {
         method,
-        headers: {
-            'Authorization': `token ${token}`
-        },
+        headers,
         body: (typeof body === 'undefined' ? null : JSON.stringify(body))
     };
 
@@ -85,20 +88,27 @@ function sendRequest({
         if (res.status === 401) {
             reAuth();
         }
-        return res.json()
+        return res.json();
     })
     .then((data) => {
         if (data.hasOwnProperty('message') && data.hasOwnProperty('documentation_url')) {
             if (!hasValidProperty(data)) {
                 fail(data);
+                either(data);
                 return;
             }
         }
         pass(data);
+        either(data);
     })
     .catch((error) => {
         console.error(`Error sending request to '${url}':`, error);
     });
+}
+
+
+function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 
@@ -142,7 +152,7 @@ document.getElementById('register-repo-button').onclick = () => {
             validProperties: ['Could not clone: Name already exists on this account'],
             pass: (res) => {
                 chrome.storage.local.set({'repository': repoName}, () => {
-                    console.log('Success');
+                    console.log(`Successfully registered repository '${repoName}'`);
                     main();
                 });
             }
@@ -159,6 +169,114 @@ document.getElementById('settings-change-repo').onclick = () => {
 document.getElementById('settings-sign-out').onclick = () => {
     chrome.runtime.sendMessage({type: 'clear-storage'}, main);
 };
+
+
+//////////////////////////////
+//      Graph Metrics       //
+//////////////////////////////
+function graphLevels(levels) {
+    const labels = [];
+    const counts = [];
+    const colors = [];
+    for (let i = levels.length - 1; i >= 0; i--) {
+        labels.push(capitalize(levels[i].name));
+        counts.push(levels[i].count);
+        colors.push(levels[i].color);
+    }
+    const config = {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Levels',
+                data: counts,
+                backgroundColor: colors
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    reverse: true,
+                    labels: {
+                        usePointStyle: true
+                    }
+                }
+            }
+        }
+    };
+    const levelsChart = new Chart(document.getElementById('summary-levels'), config);
+}
+
+function graphLanguages(languages) {
+    const labels = [];
+    const counts = [];
+    const colors = [];
+    for (let language of languages) {
+        labels.push(language.name);
+        counts.push(language.count);
+        colors.push(language.color);
+    }
+    const config = {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: colors
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    ticks: {
+                        stepSize: 1,
+                        display: false
+                    },
+                    grid: {
+                        drawBorder: false,
+                        display: false
+                    }
+                },
+                y: {
+                    grid: {
+                        drawBorder: false,
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    }
+    const languagesChart = new Chart(document.getElementById('summary-languages'), config);
+}
+
+function graphMetrics() {
+    chrome.storage.local.get(
+        ['accessToken', 'login', 'repository'],
+        (data) => {
+            if (data !== null && 
+                data.accessToken !== null &&
+                data.login !== null && 
+                data.repository !== null) {
+                sendRequest({
+                    method: 'GET',
+                    url: `https://api.github.com/repos/${data.login}/${data.repository}/contents/src/output/stats.json`,
+                    token: data.accessToken,
+                    pass: (res) => {
+                        stats = JSON.parse(atob(res.content));
+                        graphLevels(stats.levels);
+                        graphLanguages(stats.languages);
+                    }
+                });
+            }
+        }
+    );
+}
 
 
 //////////////////////////////
@@ -205,6 +323,7 @@ function main() {
                     showPage('register-repo');
                 } else {
                     showPage('summary');
+                    graphMetrics();
                 }
                 getUserLogin(token);     // Retrieve username and name
             }
