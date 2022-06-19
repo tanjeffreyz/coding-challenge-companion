@@ -134,12 +134,13 @@ document.getElementById('register-repo-button').onclick = () => {
         chrome.storage.local.get('accessToken', (data) => {
             sendRequest({
                 method: 'POST',
-                url: 'https://api.github.com/user/repos',
+                url: 'https://api.github.com/user/repos/tanjeffreyz/coding-challenges-template/generate',
                 token: data.accessToken,
                 body: {
+                    template_owner: 'tanjeffreyz',
+                    template_repo: 'coding-challenges-template',
                     name: repoName,
                     private: true,
-                    auto_init: true,
                     description: 'A challenge a day keeps the brain cells awake! 😉'
                 },
                 validProperties: ['name already exists on this account'],
