@@ -46,11 +46,13 @@ function sendRequest({
     }
 
     // Send a request
+    const headers = {};
+    if (typeof token !== 'undefined') {
+        headers['Authorization'] = `token ${token}`;
+    }
     const config = {
         method,
-        headers: {
-            'Authorization': `token ${token}`
-        },
+        headers,
         body: (typeof body === 'undefined' ? null : JSON.stringify(body))
     };
 

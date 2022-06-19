@@ -56,7 +56,8 @@ function sendRequest({
     token,
     validProperties = [],
     pass = ((res) => {}),
-    fail = ((res) => {})
+    fail = ((res) => {}),
+    either = ((res) => {})
 }) {
     // Helper function
     validProperties = new Set(validProperties);
@@ -72,11 +73,13 @@ function sendRequest({
     }
 
     // Send a request
+    const headers = {};
+    if (typeof token !== 'undefined') {
+        headers['Authorization'] = `token ${token}`;
+    }
     const config = {
         method,
-        headers: {
-            'Authorization': `token ${token}`
-        },
+        headers,
         body: (typeof body === 'undefined' ? null : JSON.stringify(body))
     };
 
@@ -91,10 +94,12 @@ function sendRequest({
         if (data.hasOwnProperty('message') && data.hasOwnProperty('documentation_url')) {
             if (!hasValidProperty(data)) {
                 fail(data);
+                either(data);
                 return;
             }
         }
         pass(data);
+        either(data);
     })
     .catch((error) => {
         console.error(`Error sending request to '${url}':`, error);
@@ -162,6 +167,68 @@ document.getElementById('settings-sign-out').onclick = () => {
 
 
 //////////////////////////////
+//      Graph Metrics       //
+//////////////////////////////
+function graphLevels(levels) {
+    const labels = [];
+    const counts = [];
+    const colors = [];
+    for (let i = levels.length - 1; i >= 0; i--) {
+        labels.push(level[i].name);
+        counts.push(level[i].count);
+        colors.push(level[i].color);
+    }
+    const config = {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Levels',
+                data: counts,
+                backgroundColor: colors
+            }]
+        }
+    };
+    const levelsChart = new Chart(document.getElementById('summary-levels'), config);
+}
+
+function graphLanguages(levels) {
+    const data = {
+
+    };
+    const config = {
+
+    };
+    const languagesChart = new Chart(
+        document.getElementById('summary-languages'),
+        config
+    );
+}
+
+function graphMetrics() {
+    chrome.storage.local.get(
+        ['accessToken', 'login', 'repository'],
+        (data) => {
+            if (data !== null && 
+                data.accessToken !== null &&
+                data.login !== null && 
+                data.repository !== null) {
+                sendRequest({
+                    method: 'GET',
+                    url: `https://raw.githubusercontent.com/${data.login}/${data.repository}/main/src/output/stats.json`,
+                    token: data.accessToken,
+                    pass: (res) => {
+                        graphLevels(res.levels);
+                        graphLanguages(res.languages);
+                    }
+                });
+            }
+        }
+    );
+}
+
+
+//////////////////////////////
 //      Main Functions      //
 //////////////////////////////
 function getUserLogin(token) {
@@ -205,6 +272,7 @@ function main() {
                     showPage('register-repo');
                 } else {
                     showPage('summary');
+                    graphMetrics();
                 }
                 getUserLogin(token);     // Retrieve username and name
             }
