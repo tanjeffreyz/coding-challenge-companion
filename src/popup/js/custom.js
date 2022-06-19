@@ -128,29 +128,26 @@ registerRepoInput.onkeydown = (e) => {
 
 document.getElementById('register-repo-button').onclick = () => {
     const repoName = registerRepoInput.value.trim('-');
-    if (repoName === '') {
-
-    } else {
-        chrome.storage.local.get('accessToken', (data) => {
-            sendRequest({
-                method: 'POST',
-                url: 'https://api.github.com/repos/tanjeffreyz/coding-challenges-template/generate',
-                token: data.accessToken,
-                body: {
-                    name: repoName,
-                    private: true,
-                    description: 'A challenge a day keeps the brain cells awake! 😉'
-                },
-                validProperties: ['name already exists on this account'],
-                pass: (res) => {
-                    chrome.storage.local.set({'repository': repoName}, () => {
-                        console.log('Success');
-                        main();
-                    });
-                }
-            });
+    if (repoName === '') return;
+    chrome.storage.local.get('accessToken', (data) => {
+        sendRequest({
+            method: 'POST',
+            url: 'https://api.github.com/repos/tanjeffreyz/coding-challenges-template/generate',
+            token: data.accessToken,
+            body: {
+                name: repoName,
+                private: true,
+                description: 'A challenge a day keeps the brain cells awake! 😉'
+            },
+            validProperties: ['Could not clone: Name already exists on this account'],
+            pass: (res) => {
+                chrome.storage.local.set({'repository': repoName}, () => {
+                    console.log('Success');
+                    main();
+                });
+            }
         });
-    }
+    });
 };
 
 
