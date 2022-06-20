@@ -8,11 +8,7 @@
     },
     "permissions": [
         "tabs",
-        "storage",
-        "unlimitedStorage"
-    ],
-    "host_permissions": [
-        "https://api.github.com/*"
+        "storage"
     ],
     "action": {
         "default_popup": "src/popup/popup.html",
