@@ -12,7 +12,8 @@
 <br>
 
 
-## Colorful Metrics
+## Features
+### Colorful Metrics
 As solutions are uploaded to GitHub, **Coding Challenge Companion** automatically generates colorful graphs to summarize your progress.
 
 <div align="center">
@@ -20,7 +21,7 @@ As solutions are uploaded to GitHub, **Coding Challenge Companion** automaticall
 </div>
 
 
-## GitHub Integration
+### GitHub Integration
 With the intuitive user interface, authenticating with GitHub and setting up your challenge repositories is quick and easy!
 
 <div align="center">
