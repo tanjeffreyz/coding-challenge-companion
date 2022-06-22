@@ -7,7 +7,6 @@
         "service_worker": "src/main.js"
     },
     "permissions": [
-        "tabs",
         "storage"
     ],
     "action": {
