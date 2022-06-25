@@ -1,5 +1,7 @@
 <div align="center">
-  <img src="resources/icons/thick/icon-48px.png" />
+  <a href="https://chrome.google.com/webstore/detail/coding-challenge-companio/lkfbnbclahofpbalfjcccpdimjadbboj">
+    <img src="resources/icons/thick/icon-48px.png" />
+  </a>
   <h1>Coding Challenge Companion</h1>
 </div>
 
