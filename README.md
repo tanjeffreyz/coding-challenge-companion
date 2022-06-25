@@ -16,7 +16,7 @@
 
 ## Features
 ### Colorful Metrics
-As solutions are uploaded to GitHub, **Coding Challenge Companion** automatically generates colorful graphs to summarize your progress.
+After a solution is uploaded to GitHub, **Coding Challenge Companion** automatically generates colorful graphs to summarize your progress.
 
 <div align="center">
   <img src="resources/images/main_page.png" width="600px" />
