@@ -6,7 +6,9 @@
 **Coding Challenge Companion** is a Chrome extension that automatically pushes your solutions to GitHub upon successful submission.
 
 <div align="center">
-  <a href=""><b>Click here to install the extension</b></a>
+  <a href="https://chrome.google.com/webstore/detail/coding-challenge-companio/lkfbnbclahofpbalfjcccpdimjadbboj">
+    <b>Click here to install the extension</b>
+  </a>
 </div>
 
 <br>
