@@ -25,7 +25,7 @@ As solutions are uploaded to GitHub, **Coding Challenge Companion** automaticall
 With the intuitive user interface, authenticating with GitHub and setting up your coding challenge repository is quick and easy!
 
 <div align="center">
-  <img src="resources/images/authentication_page.png" width="600px" />
+  <img src="resources/images/example_repo.png" width="600px" />
   <br><br>
-  <img src="resources/images/register_repo_page.png" width="600px" />
+  <img src="resources/images/authentication_page.png" width="600px" />
 </div>
