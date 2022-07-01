@@ -24,7 +24,9 @@ After a solution is uploaded to GitHub, **Coding Challenge Companion** automatic
   <img src="resources/images/main_page.png" width="600px" />
 </div>
 
-These graphs are also displayed in your coding challenge repository's `README.md` file:
+<br>
+
+These graphs are also displayed in your coding challenge repository's `README.md` file, along with a catalog of challenges and your solutions:
 
 <div align="center">
   <img src="resources/images/example_repo.png" width="600px" />
