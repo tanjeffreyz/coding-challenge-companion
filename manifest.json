@@ -1,6 +1,6 @@
 {
     "name": "Coding Challenge Companion",
-    "description": "Chrome extension that pushes coding challenge solutions to GitHub upon successful submission",
+    "description": "Automatically pushes your coding challenge solutions to GitHub upon successful submission",
     "version": "1.0.0",
     "manifest_version": 3,
     "background": {
