@@ -45,7 +45,10 @@ const TITLE_DATA_CY = 'question-title';
 const DIFFICULTY_PARENT_CLASS = 'css-10o4wqw';
 const DESCRIPTION_CLASS = 'content__u3I1 question-content__JfgR';
 const LANGUAGE_CLASS = 'ant-select-selection-selected-value';
-const CODE_LINE_CLASS = 'CodeMirror-line';
+const CODE_CLASS = 'CodeMirror-code';
+const CODE_SCROLL_CLASS = 'CodeMirror-scroll';
+const CODE_LINE_NUMBER_SELECTOR = '.CodeMirror-linenumber'
+const CODE_LINE_SELECTOR = '.CodeMirror-line';
 const RESULTS_CLASS = 'data__HC-i';
 const TOPIC_CLASS = 'topic-tag__1jni';
 const SUBMIT_BUTTON_DATA_CY = 'submit-code-btn';
@@ -88,6 +91,45 @@ function validData(dataObj) {
 //////////////////////////////
 //      Main Functions      //
 //////////////////////////////
+function parseCode(data) {
+    const tempPre = document.createElement('pre');
+    const codeScroll = getElementByUniqueClass(CODE_SCROLL_CLASS);
+    const delayMS = 1;
+
+    const lines = [];
+    let lastParsed = 0;
+    const recur = (y) => {
+        if (y === 0 || codeScroll.scrollHeight - codeScroll.scrollTop > codeScroll.clientHeight) {
+            codeScroll.scroll(0, y);        // Scroll down to fetch more lines of code
+            setTimeout(() => {
+                const codeContainer = getElementByUniqueClass(CODE_CLASS);
+                const lineNumberProbe = codeContainer.lastChild.querySelector(CODE_LINE_NUMBER_SELECTOR);
+                if (lineNumberProbe === null || parseInt(lineNumberProbe.innerHTML) <= lastParsed) {
+                    recur(y);       // New code hasn't loaded, so try again
+                } else {
+                    // Parse new lines of code
+                    const codeLines = codeContainer.children;
+                    for (let line of codeLines) {
+                        const lineNumber = parseInt(line.querySelector(CODE_LINE_NUMBER_SELECTOR).innerHTML);
+                        if (lineNumber > lastParsed) {
+                            const lineContents = line.querySelector(CODE_LINE_SELECTOR).innerHTML.replace(/\&nbsp;/g, ' ');
+                            tempPre.innerHTML = lineContents;
+                            lines.push(tempPre.textContent);
+                            lastParsed = lineNumber;
+                        }
+                    }
+                    recur(y + codeScroll.clientHeight);
+                }
+            }, delayMS);
+        } else {
+            console.log(`Parsed ${lines.length} lines of code`);
+            data.solution = lines.join('\n').trim();
+        }
+    };
+    recur(0);
+}
+
+
 function startPoll() {
     // Reset global variables
     time = 0;
@@ -106,15 +148,7 @@ function startPoll() {
     const header = `<div align="center"><h1>${data.title} (${data.difficulty})</h1></div>`;
     data.description = header + '\n\n' + descriptionElement.innerHTML;
 
-    const codeLines = document.getElementsByClassName(CODE_LINE_CLASS);
-    const lines = [];
-    const tempPre = document.createElement('pre');
-    for (let line of codeLines) {
-        const lineContents = line.innerHTML.replace(/\&nbsp;/g, ' ');
-        tempPre.innerHTML = lineContents;
-        lines.push(tempPre.textContent);
-    }
-    data.solution = lines.join('\n').trim();
+    parseCode(data);
 
     const languageElement = getElementByUniqueClass(LANGUAGE_CLASS);
     data.language = languageElement.textContent;
@@ -138,7 +172,7 @@ setInterval(() => {
             submitButton.onclick = startPoll;
         }
     } else if (!committed && time < MAX_TIME) {     // Check for submission results
-        console.log('polled');
+        console.log('Polled');
         const successElement = getElementByUniqueClass(SUCCESS_CLASS);
         if (successElement !== null) {
             const resultsElements = document.getElementsByClassName(RESULTS_CLASS);
