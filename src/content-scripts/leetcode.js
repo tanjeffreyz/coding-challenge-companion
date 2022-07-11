@@ -70,7 +70,7 @@ function getElementByUniqueClass(classString) {
 
 function formatPath(title) {
     const alphaNumeric = title.replace(/[^a-zA-Z0-9\(\) ]+/g, '');
-    const dashed = alphaNumeric.replace(/[\(\) ]+/g, '-');
+    const dashed = alphaNumeric.replace(/[\(\) ]+/g, '_');
     const trimmed = dashed.replace(/^\-+|\-+$/g, '');
     return trimmed.toLowerCase();
 }
