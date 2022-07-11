@@ -123,7 +123,7 @@ function parseCode(data) {
             }, delayMS);
         } else {
             console.log(`Parsed ${lines.length} lines of code`);
-            data.solution = lines.join('\n').trim();
+            data.solution = lines.join('\n');
         }
     };
     recur(0);
