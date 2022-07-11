@@ -1,7 +1,7 @@
 {
     "name": "Coding Challenge Companion",
     "description": "Automatically pushes your coding challenge solutions to GitHub upon successful submission",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "manifest_version": 3,
     "background": {
         "service_worker": "src/main.js"
