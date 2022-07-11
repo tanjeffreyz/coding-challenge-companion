@@ -114,7 +114,7 @@ function parseCode(data) {
                         if (lineNumber > lastParsed) {
                             const lineContents = line.querySelector(CODE_LINE_SELECTOR).innerHTML.replace(/\&nbsp;/g, ' ');
                             tempPre.innerHTML = lineContents;
-                            lines.push(tempPre.textContent);
+                            lines.push(tempPre.textContent.trimEnd());
                             lastParsed = lineNumber;
                         }
                     }
